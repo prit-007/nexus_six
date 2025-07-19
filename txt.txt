@@ -1,0 +1,168 @@
+
+6
+ 
+Note Calculator 
+ 
+🔰 Overview 
+CalcNote is a smart notepad that performs real-time calculations as users type numbers and 
+formulas. It's ideal for daily expense tracking, budgeting, invoice estimates, and quick math. 
+This app combines the ease of a text editor with the functionality of a calculator. 
+🧠 1. Core Functionality 
+✅ Note + Calculator Hybrid 
+   Users can type freeform notes with embedded expressions 
+   Expressions are evaluated in real-time 
+Example: 
+Coffee: 3.50 
+Lunch: 7.80 
+Total: =3.50 + 7.80 
+ 
+✅ Live Calculation Engine 
+   Detect and evaluate math expressions on the fly 
+   Auto-recalculate when any number is changed 
+   Support for referencing previous line results (like @1, @2 for line numbers) 
+✅ Editable History 
+   All entries editable — changing a value should auto-update all dependent results 
+ 
+📝 2. Text Editor Features 
+   Basic formatting (bold, highlight optional) 
+   Indentation support (for sub-categories) 
+   Line numbering (optional) 
+   Auto-suggestions for functions or previous lines 
+   Syntax highlighting for numbers and formulas 
+ 
+🔢 3. Calculation Features 
+✅ Math Operations 
+   Standard: +, -, *, /, % 
+   Parentheses for grouping: (3 + 2) * 4 
+   Decimal and currency support 
+   Inline functions: sum(), avg(), min(), max() 
+✅ Variables & References 
+   Use variables like tax = 0.1 and reuse: price * (1 + tax) 
+   Line reference: @1 + @2 
+ 
+🔧 4. Customization & Settings 
+   Theme (light/dark) 
+   Font size adjustment 
+   Decimal precision settings (e.g., 2 digits) 
+   Currency symbol preferences 
+   Auto-save toggle 
+   Backup/export preferences 
+ 
+💾 5. Data Management 
+✅ Note Saving & History 
+   Save individual notes/sheets (named) 
+   Local auto-save with manual save option 
+   Cloud sync (optional phase) 
+   Edit history with undo/redo 
+✅ Exporting 
+   Export notes to: 
+   Plain text 
+   PDF 
+   CSV (numbers only) 
+   Share note with calculations embedded 
+ 
+🔐 6. Security & Privacy 
+   App-level passcode/biometric lock (Face ID / Fingerprint) 
+   All notes stored locally by default 
+   Option to sync/export securely (only with consent) 
+ 
+☁ 7. Optional Features (Advanced/Future Versions) 
+   Cloud backup (Google Drive, Dropbox) 
+   Markdown-style note support 
+   Charts for visualizing totals 
+   Tagging system for notes 
+   Voice input for note entry 
+   Real-time collaboration (like Google Docs) 
+ 
+📱 8. UI/UX Design 
+   Simple, minimal interface 
+   Calculator-style input bar (optional) 
+   Tabs or folders for organizing notes 
+   Smooth scrolling with large documents 
+   No ads in paid version (if freemium model used) 
+ 
+🧪 9. Testing Requirements 
+   Unit tests for calculation engine 
+   UI testing for Android/iOS screens 
+   Edge case testing: invalid syntax, large notes 
+   Performance testing for 1000+ line notes 
+ 
+📦 10. Technical Stack (Suggestion) 
+Component  Recommendation 
+Platform  React Native / Flutter (cross-platform) 
+State 
+Management 
+Redux / Riverpod / Provider 
+Calc Engine  Custom parser or math.js-like lib 
+Storage  SQLite / Hive (local), optional Firebase for cloud 
+Export  react-native-html-to-pdf / CSV writer 
+ 
+ 
+🆓 11. Monetization (Optional) 
+   Free version with: 
+   Limited exports 
+   Limited saved notes 
+   Pro version: 
+   Unlimited saves 
+   Export options 
+   Cloud sync 
+   No ads  
+📌 Summary of Must-Have Features 
+Category  Key Features 
+Core 
+Functionality 
+Real-time calculation while typing, expression evaluation, editable 
+entries, referencing previous lines (@1, @2) 
+Text Editor  Freeform note-taking with basic formatting, indentation, line numbering, 
+syntax highlighting, and auto-suggestions 
+Calculation 
+Engine 
+Support for standard math operators (+, -, *, /, %), parentheses, 
+decimal/currency, inline functions (sum, avg, min, max), variables and 
+references 
+Customization  Light/dark theme, font size, decimal precision, currency symbols, 
+auto-save and backup/export options 
+Data 
+Management 
+Save notes locally with auto-save, manual save, note history with 
+undo/redo, export to plain text, PDF, CSV, and share 
+Security & 
+Privacy 
+App-level passcode/biometric lock, local storage by default, secure 
+sync/export with user consent 
+UI/UX  Simple minimal design, optional calculator-style input bar, smooth 
+scrolling, tabs/folders for note organization 
+Performance  Fast, real-time expression parsing and calculation, reliable editing with 
+immediate result updates 
+Testing & 
+Stability 
+Unit tests for calculation engine, UI tests on mobile platforms, edge 
+case handling (invalid syntax, large notes) 
+ 
+ 
+🧾 Example 1: Daily Expense Calculation 
+Coffee: 3.50 Lunch: 8.20 Snacks: 2.30 
+Total: =3.50 + 8.20 + 2.30 
+👉 Output: 
+Total: 14.00 
+ 
+💼 Example 2: Project Estimate 
+Design: 20 hours x $30 = 600 Development: 50 hours x $40 = 2000 QA: 15 hours x $25 = 375 Total Cost: =600 + 2000 + 375 
+👉 Output: 
+Total Cost: 2975 
+ 
+🧮 Example 3: Using Variables 
+rate = 45 hours = 36 tax = 0.10 
+Base Cost: =rate * hours Tax Amount: =Base Cost * tax Total: =Base Cost + Tax Amount 
+👉 Output: 
+Base Cost: 1620   Tax Amount: 162   Total: 1782 
+ 
+📊 Example 4: Monthly Budget Tracker 
+Rent: 950 Groceries: 300 Utilities: 150 Transportation: 120 Miscellaneous: 100 Monthly Expenses: =sum(950, 300, 150, 120, 100) 
+👉 Output: 
+Monthly Expenses: 1620 
+ 
+🔢 Example 5: Referencing Previous Lines 
+1. Item A: 150   2. Item B: 220   3. Subtotal: =@1 + @2 4. Discount (10%): =@3 * 0.1 5. Final Price: =@3 - @4 
+👉 Output: 
+3. Subtotal: 370   4. Discount (10%): 37   5. Final Price: 333 

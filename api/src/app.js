@@ -61,6 +61,47 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 
+// Import routes
+const userRoutes = require('./routes/userRoutes');
+const noteRoutes = require('./routes/noteRoutes');
+const tagRoutes = require('./routes/tagRoutes');
+const groupRoutes = require('./routes/groupRoutes');
+
+// Mount routes
+app.use('/api/users', userRoutes);
+app.use('/api/notes', noteRoutes);
+app.use('/api/tags', tagRoutes);
+app.use('/api/groups', groupRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'CalcNote API',
+    version: '1.0.0',
+    documentation: '/api-docs'
+  });
+});
+
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.originalUrl}`
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  logger.error(`Error: ${err.message}`);
+  
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || 'Server Error',
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received. Shutting down gracefully...');

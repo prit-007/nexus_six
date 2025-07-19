@@ -1,7 +1,11 @@
 const app = require('./src/app');
 const logger = require('./src/utils/logger');
+const connectDB = require('./src/config/database');
 
 const PORT = process.env.PORT || 5000;
+
+// Connect to MongoDB
+connectDB();
 
 const server = app.listen(PORT, () => {
   logger.info(`
