@@ -1,16 +1,9 @@
-<<<<<<< Updated upstream
 # CalcNote API with MongoDB & Gemini AI
 
 A professional, production-ready Express.js API for the CalcNote application, a smart notepad that performs real-time calculations as users type numbers and formulas. The API features industrial-standard architecture, MongoDB integration, JWT authentication, password hashing, logging, error handling, API documentation, and Gemini AI integration.
-=======
-# CalcNote - Smart Notepad with Real-time Math Calculations
-
-A modern full-stack web application that combines note-taking with intelligent mathematical calculations, featuring JWT authentication, AI integration, and a beautiful responsive UI.
->>>>>>> Stashed changes
 
 ## 🚀 Technologies & Versions
 
-<<<<<<< Updated upstream
 ### Core API Features
 - **Industrial Standard Architecture**: Organized with controllers, models, routes, middleware, and services
 - **MongoDB Integration**: Using Mongoose ODM with proper schema validation
@@ -25,28 +18,6 @@ A modern full-stack web application that combines note-taking with intelligent m
 - **Gemini AI Integration**: Google's Gemini 2.5 AI model integration
 - **Input Validation**: Express-validator for request validation
 - **Environment Configuration**: Dotenv for environment variables
-=======
-### Frontend
-- **React**: 19.1.0
-- **React Router DOM**: 7.7.0
-- **Tailwind CSS**: 3.4.17
-- **Axios**: 1.10.0
-- **Lucide React**: 0.525.0 (Icons)
-
-### Backend
-- **Node.js**: Latest LTS
-- **Express.js**: 5.1.0
-- **MongoDB**: 8.16.4 (Mongoose ODM)
-- **JWT**: 9.0.2 (Authentication)
-- **Bcrypt.js**: 3.0.2 (Password Hashing)
-- **Google Generative AI**: 0.24.1 (Gemini 2.5)
-- **Winston**: 3.17.0 (Logging)
-- **Swagger**: 6.2.8 (API Documentation)
-
-### Database
-- **MongoDB**: NoSQL Database
-- **Mongoose**: ODM for MongoDB
->>>>>>> Stashed changes
 
 ### CalcNote Specific Features
 - **User Management**: Registration, authentication, and profile management
@@ -61,7 +32,6 @@ A modern full-stack web application that combines note-taking with intelligent m
 ## 📁 Project Structure
 
 ```
-<<<<<<< Updated upstream
 api/
 ├── src/
 │   ├── config/
@@ -103,59 +73,15 @@ api/
 ├── .gitignore                   # Git ignore rules
 ├── package.json                 # Dependencies and scripts
 └── server.js                    # Application entry point
-=======
-CalcNote/
-├── api/                          # Backend Express.js API
-│   ├── src/
-│   │   ├── config/
-│   │   │   ├── database.js       # MongoDB connection
-│   │   │   └── swagger.js        # API documentation
-│   │   ├── controllers/
-│   │   │   ├── authController.js # Authentication logic
-│   │   │   └── aiController.js   # AI integration
-│   │   ├── middleware/
-│   │   │   ├── auth.js           # JWT middleware
-│   │   │   └── errorHandler.js   # Error handling
-│   │   ├── models/
-│   │   │   └── User.js           # User schema
-│   │   ├── routes/
-│   │   │   ├── auth.js           # Auth routes
-│   │   │   └── ai.js             # AI routes
-│   │   ├── services/
-│   │   │   └── geminiService.js  # Gemini AI service
-│   │   └── utils/
-│   │       └── logger.js         # Winston logger
-│   ├── package.json
-│   └── server.js                 # Entry point
-├── pro/                          # Frontend React App
-│   ├── src/
-│   │   ├── components/
-│   │   ├── AuthPage.jsx          # Login/Signup page
-│   │   ├── Welcome.jsx           # Dashboard page
-│   │   ├── App.jsx               # Main app component
-│   │   └── index.js              # React entry point
-│   ├── public/
-│   └── package.json
-└── README.md
->>>>>>> Stashed changes
 ```
 
 ## 🎯 Modules Developed
 
-<<<<<<< Updated upstream
 1. **Clone and navigate to the project:**
    ```bash
    git clone https://github.com/yourusername/nexus_six.git
    cd nexus_six/api
    ```
-=======
-### 1. Authentication Module
-- User registration with validation
-- Secure login system
-- JWT token-based authentication
-- Password hashing with bcrypt
-- Protected routes
->>>>>>> Stashed changes
 
 ### 2. Frontend UI Module
 - Responsive authentication pages
@@ -177,7 +103,6 @@ CalcNote/
 - Chat completion features
 - Text analysis functionality
 
-<<<<<<< Updated upstream
    # Database Configuration
    MONGODB_URI=mongodb://localhost:27017/calcnote_db
    MONGODB_DEBUG=false
@@ -647,22 +572,6 @@ The CalcNote API uses MongoDB with Mongoose ODM for data storage. Below are the 
 ```
 
 ## 🔒 Security Features
-=======
-## ✨ Features & Description
-
-### 🔐 Authentication System
-- **Secure Registration**: Username, email, and password validation
-- **Login System**: Email/password authentication with JWT tokens
-- **Auto-redirect**: Automatic redirection for authenticated users
-- **Logout Confirmation**: User-friendly logout with confirmation dialog
-
-### 🎨 Modern UI/UX
-- **Responsive Design**: Works seamlessly on desktop and mobile
-- **Dark Theme**: Beautiful gradient backgrounds with purple/slate colors
-- **Interactive Elements**: Hover effects, animations, and transitions
-- **Form Validation**: Real-time client-side validation with error messages
-- **Loading States**: Visual feedback during form submissions
->>>>>>> Stashed changes
 
 ### 🛡️ Security Features
 - **Password Hashing**: Bcrypt with configurable salt rounds
@@ -792,7 +701,6 @@ cd pro
 npm test
 ```
 
-<<<<<<< Updated upstream
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `PORT` | Server port | `5000` |
@@ -809,15 +717,6 @@ npm test
 | `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:3000` |
 | `LOG_LEVEL` | Winston logger level | `info` |
 | `LOG_FILE` | Log file path | `./logs/app.log` |
-=======
-### Manual Testing Scenarios
-1. **Registration**: Create new user account
-2. **Login**: Authenticate with valid credentials
-3. **Auto-redirect**: Test token persistence
-4. **Logout**: Confirm logout functionality
-5. **Validation**: Test form validation errors
-6. **API Endpoints**: Test all REST endpoints
->>>>>>> Stashed changes
 
 ## 📸 Screenshots & Demo
 
