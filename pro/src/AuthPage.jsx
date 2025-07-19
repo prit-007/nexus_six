@@ -96,13 +96,28 @@ export default function AuthPage() {
       const data = response.data;
 
       if (data.success) {
-        localStorage.setItem('token', data.token);
-        navigate('/welcome');
+        if (isLogin) {
+          // Login successful - store token and redirect
+          localStorage.setItem('token', data.token);
+          navigate('/welcome');
+        } else {
+          // Registration successful - show verification message
+          alert('Registration successful! Please check your email to verify your account before logging in.');
+          setIsLogin(true); // Switch to login form
+          setFormData({ username: '', email: '', password: '' });
+        }
       } else {
         alert(data.message || 'An error occurred');
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Server error');
+      const errorMessage = error.response?.data?.message || 'Server error';
+      
+      // Handle email verification required
+      if (error.response?.data?.needsVerification) {
+        alert(`${errorMessage}\n\nPlease check your email and click the verification link before logging in.`);
+      } else {
+        alert(errorMessage);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -122,6 +137,25 @@ export default function AuthPage() {
         <span>{error}</span>
       </div>
     );
+  };
+
+  const handleResendVerification = async () => {
+    if (!formData.email) {
+      alert('Please enter your email address first');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:1969/api/users/resend-verification', {
+        email: formData.email
+      });
+
+      if (response.data.success) {
+        alert('Verification email sent! Please check your inbox.');
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to resend verification email');
+    }
   };
 
   return (
@@ -253,6 +287,18 @@ export default function AuthPage() {
                 {isSubmitting ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
               </button>
             </div>
+
+            {isLogin && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  className="text-purple-400 hover:text-purple-300 text-sm underline"
+                >
+                  Resend verification email
+                </button>
+              </div>
+            )}
 
             <div className="mt-8 text-center">
               <p className="text-gray-300 mb-4">

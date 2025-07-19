@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthPage from './AuthPage';
 import Dashboard from './Dashboard';
 import NotePage from './NotePage';
+import Welcome from './Welcome';
+import EmailVerification from './EmailVerification';
 
 function App() {
   return (
@@ -10,6 +12,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/note/:id" element={<NotePage />} />
       </Routes>
     </Router>

@@ -31,6 +31,13 @@ const registerUser = async (req, res) => {
     const verificationToken = generateVerificationToken();
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+    console.log('='.repeat(50));
+    console.log('REGISTRATION DEBUG:');
+    console.log(`Generated token: ${verificationToken}`);
+    console.log(`Token length: ${verificationToken.length}`);
+    console.log(`Token expiry: ${tokenExpiry}`);
+    console.log('='.repeat(50));
+
     // Create user
     const user = await User.create({
       username,
@@ -47,7 +54,7 @@ const registerUser = async (req, res) => {
       
       res.status(201).json({
         success: true,
-        message: 'User registered successfully. Please check your email to verify your account. Check server console for email preview link.',
+        message: 'User registered successfully. Please check your email to verify your account.',
         data: {
           id: user._id,
           username: user.username,
@@ -86,6 +93,12 @@ const registerUser = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
+    
+    console.log('='.repeat(50));
+    console.log('EMAIL VERIFICATION DEBUG:');
+    console.log(`Received token: ${token}`);
+    console.log(`Token length: ${token.length}`);
+    console.log('='.repeat(50));
 
     // Find user with verification token
     const user = await User.findOne({
@@ -93,11 +106,30 @@ const verifyEmail = async (req, res) => {
       tokenExpiry: { $gt: Date.now() }
     });
 
+    console.log(`User found: ${user ? 'YES' : 'NO'}`);
+    if (user) {
+      console.log(`User email: ${user.email}`);
+      console.log(`Token expiry: ${user.tokenExpiry}`);
+      console.log(`Current time: ${new Date()}`);
+      console.log(`Is expired: ${user.tokenExpiry < Date.now()}`);
+    }
+
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid or expired verification token'
-      });
+      // Check if user exists with this token but expired
+      const expiredUser = await User.findOne({ verificationToken: token });
+      if (expiredUser) {
+        console.log('Token found but EXPIRED');
+        return res.status(400).json({
+          success: false,
+          message: 'Verification token has expired. Please request a new verification email.'
+        });
+      } else {
+        console.log('Token NOT FOUND in database');
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid verification token'
+        });
+      }
     }
 
     // Update user verification status
@@ -121,6 +153,7 @@ const verifyEmail = async (req, res) => {
 
   } catch (err) {
     logger.error(`Error verifying email: ${err.message}`);
+    console.error('VERIFICATION ERROR:', err);
     res.status(500).json({
       success: false,
       message: 'Server Error'
@@ -198,21 +231,22 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Check if email is verified
-    if (!user.isVerified) {
-      return res.status(401).json({
-        success: false,
-        message: 'Please verify your email before logging in. Check your inbox for verification link.',
-        needsVerification: true
-      });
-    }
-
-    // Check password
+    // Check password first
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
+      });
+    }
+
+    // BLOCK LOGIN if email is not verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Please verify your email before logging in. Check your inbox for verification link.',
+        needsVerification: true,
+        email: user.email
       });
     }
 

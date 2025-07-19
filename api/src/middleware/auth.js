@@ -44,6 +44,15 @@ const protect = async (req, res, next) => {
       });
     }
 
+    // BLOCK ACCESS if email is not verified
+    if (!req.user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email verification required to access this resource',
+        needsVerification: true
+      });
+    }
+
     next();
   } catch (err) {
     logger.error(`Auth middleware error: ${err.message}`);
