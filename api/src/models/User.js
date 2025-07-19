@@ -38,6 +38,14 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  verificationToken: {
+    type: String,
+    default: null
+  },
+  tokenExpiry: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

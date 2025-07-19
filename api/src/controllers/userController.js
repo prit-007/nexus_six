@@ -1,51 +1,181 @@
 const { User } = require('../models');
 const logger = require('../utils/logger');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { sendVerificationEmail, testEmailConfig } = require('../utils/email');
+
+// Generate verification token
+const generateVerificationToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
 
 /**
  * @desc    Register user
  * @route   POST /api/users/register
  * @access  Public
  */
-exports.registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if user already exists
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
-
+    // Check if user exists
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: 'User with that email or username already exists'
+        message: 'User already exists'
       });
     }
+
+    // Generate verification token
+    const verificationToken = generateVerificationToken();
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user
     const user = await User.create({
       username,
       email,
-      password
+      password,
+      verificationToken,
+      tokenExpiry,
+      isVerified: false
     });
 
-    // Generate token
-    const token = user.getSignedJwtToken();
+    // Send verification email
+    try {
+      await sendVerificationEmail(email, verificationToken, username);
+      
+      res.status(201).json({
+        success: true,
+        message: 'User registered successfully. Please check your email to verify your account. Check server console for email preview link.',
+        data: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          isVerified: user.isVerified
+        }
+      });
+    } catch (emailError) {
+      logger.error(`Email sending failed: ${emailError.message}`);
+      res.status(201).json({
+        success: true,
+        message: 'User registered successfully, but verification email could not be sent.',
+        data: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          isVerified: user.isVerified
+        }
+      });
+    }
 
-    res.status(201).json({
+  } catch (err) {
+    logger.error(`Error registering user: ${err.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+/**
+ * @desc    Verify email
+ * @route   GET /api/users/verify-email/:token
+ * @access  Public
+ */
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find user with verification token
+    const user = await User.findOne({
+      verificationToken: token,
+      tokenExpiry: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification token'
+      });
+    }
+
+    // Update user verification status
+    user.isVerified = true;
+    user.verificationToken = null;
+    user.tokenExpiry = null;
+    await user.save({ validateBeforeSave: false });
+
+    logger.info(`Email verified for user: ${user.email}`);
+
+    res.status(200).json({
       success: true,
-      token,
+      message: 'Email verified successfully. You can now log in.',
       data: {
         id: user._id,
         username: user.username,
         email: user.email,
-        preferences: user.preferences
+        isVerified: user.isVerified
       }
     });
+
   } catch (err) {
-    logger.error(`Error registering user: ${err.message}`);
-    res.status(400).json({
+    logger.error(`Error verifying email: ${err.message}`);
+    res.status(500).json({
       success: false,
-      message: err.message
+      message: 'Server Error'
+    });
+  }
+};
+
+/**
+ * @desc    Resend verification email
+ * @route   POST /api/users/resend-verification
+ * @access  Public
+ */
+const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if already verified
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+
+    // Generate new verification token
+    const verificationToken = generateVerificationToken();
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Update user with new token
+    user.verificationToken = verificationToken;
+    user.tokenExpiry = tokenExpiry;
+    await user.save({ validateBeforeSave: false });
+
+    // Send verification email
+    await sendVerificationEmail(email, verificationToken, user.username);
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification email sent successfully. Please check your email.'
+    });
+
+  } catch (err) {
+    logger.error(`Error resending verification email: ${err.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
     });
   }
 };
@@ -55,21 +185,12 @@ exports.registerUser = async (req, res) => {
  * @route   POST /api/users/login
  * @access  Public
  */
-exports.loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate email & password
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide an email and password'
-      });
-    }
-
     // Check for user
     const user = await User.findOne({ email }).select('+password');
-
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -77,64 +198,30 @@ exports.loginUser = async (req, res) => {
       });
     }
 
-    // Check if password matches
-    const isMatch = await user.matchPassword(password);
+    // Check if email is verified
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email before logging in. Check your inbox for verification link.',
+        needsVerification: true
+      });
+    }
 
+    // Check password
+    const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
-    
-    // Check if user has a valid token in the request
-    let token;
-    let existingToken = false;
-    
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-      existingToken = true;
-    } else if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-      existingToken = true;
-    }
-    
-    // If token exists, verify it's still valid
-    if (existingToken) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // Check if the token belongs to the same user
-        if (decoded.id === user._id.toString()) {
-          // Update last login
-          user.lastLogin = Date.now();
-          await user.save({ validateBeforeSave: false });
-          
-          // Return the existing valid token
-          return res.status(200).json({
-            success: true,
-            token,
-            data: {
-              id: user._id,
-              username: user.username,
-              email: user.email,
-              preferences: user.preferences
-            },
-            message: 'Using existing valid token'
-          });
-        }
-      } catch (error) {
-        // Token verification failed, generate a new token
-        logger.info(`Token verification failed, generating new token: ${error.message}`);
-      }
-    }
 
     // Update last login
     user.lastLogin = Date.now();
     await user.save({ validateBeforeSave: false });
 
-    // Generate new token
-    token = user.getSignedJwtToken();
+    // Generate token
+    const token = user.getSignedJwtToken();
 
     // Set cookie options
     const cookieOptions = {
@@ -144,7 +231,6 @@ exports.loginUser = async (req, res) => {
       httpOnly: true
     };
 
-    // Set secure flag in production
     if (process.env.NODE_ENV === 'production') {
       cookieOptions.secure = true;
     }
@@ -159,7 +245,8 @@ exports.loginUser = async (req, res) => {
           id: user._id,
           username: user.username,
           email: user.email,
-          preferences: user.preferences
+          preferences: user.preferences,
+          isVerified: user.isVerified
         }
       });
   } catch (err) {
@@ -176,7 +263,7 @@ exports.loginUser = async (req, res) => {
  * @route   GET /api/users/me
  * @access  Private
  */
-exports.getMe = async (req, res) => {
+const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
@@ -198,7 +285,7 @@ exports.getMe = async (req, res) => {
  * @route   PUT /api/users/me
  * @access  Private
  */
-exports.updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     // Fields to update
     const fieldsToUpdate = {
@@ -244,7 +331,7 @@ exports.updateProfile = async (req, res) => {
  * @route   PUT /api/users/updatepassword
  * @access  Private
  */
-exports.updatePassword = async (req, res) => {
+const updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -287,7 +374,7 @@ exports.updatePassword = async (req, res) => {
  * @route   GET /api/users/logout
  * @access  Private
  */
-exports.logout = async (req, res) => {
+const logout = async (req, res) => {
   try {
     res.cookie('token', 'none', {
       expires: new Date(Date.now() + 10 * 1000),
@@ -305,4 +392,60 @@ exports.logout = async (req, res) => {
       message: 'Server Error'
     });
   }
+};
+
+const testEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Check environment variables
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      return res.status(500).json({
+        success: false,
+        message: 'EMAIL_USER or EMAIL_PASS not configured'
+      });
+    }
+
+    // Test Gmail configuration
+    const isConfigValid = await testEmailConfig();
+    if (!isConfigValid) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gmail configuration failed. Check your app password.'
+      });
+    }
+
+    // Send test email via Gmail
+    await sendVerificationEmail(email, 'test-token-123', 'Test User');
+    
+    res.status(200).json({
+      success: true,
+      message: 'Gmail test email sent successfully! Check your inbox.'
+    });
+  } catch (error) {
+    logger.error(`Gmail test error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: `Gmail sending failed: ${error.message}`
+    });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  verifyEmail,
+  resendVerificationEmail,
+  testEmail,
+  getMe,
+  updateProfile,
+  updatePassword,
+  logout
 };
