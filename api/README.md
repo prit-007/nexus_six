@@ -1,9 +1,16 @@
+<<<<<<< Updated upstream
 # CalcNote API with MongoDB & Gemini AI
 
 A professional, production-ready Express.js API for the CalcNote application, a smart notepad that performs real-time calculations as users type numbers and formulas. The API features industrial-standard architecture, MongoDB integration, JWT authentication, password hashing, logging, error handling, API documentation, and Gemini AI integration.
+=======
+# CalcNote - Smart Notepad with Real-time Math Calculations
 
-## 🚀 Features
+A modern full-stack web application that combines note-taking with intelligent mathematical calculations, featuring JWT authentication, AI integration, and a beautiful responsive UI.
+>>>>>>> Stashed changes
 
+## 🚀 Technologies & Versions
+
+<<<<<<< Updated upstream
 ### Core API Features
 - **Industrial Standard Architecture**: Organized with controllers, models, routes, middleware, and services
 - **MongoDB Integration**: Using Mongoose ODM with proper schema validation
@@ -18,6 +25,28 @@ A professional, production-ready Express.js API for the CalcNote application, a 
 - **Gemini AI Integration**: Google's Gemini 2.5 AI model integration
 - **Input Validation**: Express-validator for request validation
 - **Environment Configuration**: Dotenv for environment variables
+=======
+### Frontend
+- **React**: 19.1.0
+- **React Router DOM**: 7.7.0
+- **Tailwind CSS**: 3.4.17
+- **Axios**: 1.10.0
+- **Lucide React**: 0.525.0 (Icons)
+
+### Backend
+- **Node.js**: Latest LTS
+- **Express.js**: 5.1.0
+- **MongoDB**: 8.16.4 (Mongoose ODM)
+- **JWT**: 9.0.2 (Authentication)
+- **Bcrypt.js**: 3.0.2 (Password Hashing)
+- **Google Generative AI**: 0.24.1 (Gemini 2.5)
+- **Winston**: 3.17.0 (Logging)
+- **Swagger**: 6.2.8 (API Documentation)
+
+### Database
+- **MongoDB**: NoSQL Database
+- **Mongoose**: ODM for MongoDB
+>>>>>>> Stashed changes
 
 ### CalcNote Specific Features
 - **User Management**: Registration, authentication, and profile management
@@ -32,6 +61,7 @@ A professional, production-ready Express.js API for the CalcNote application, a 
 ## 📁 Project Structure
 
 ```
+<<<<<<< Updated upstream
 api/
 ├── src/
 │   ├── config/
@@ -73,32 +103,81 @@ api/
 ├── .gitignore                   # Git ignore rules
 ├── package.json                 # Dependencies and scripts
 └── server.js                    # Application entry point
+=======
+CalcNote/
+├── api/                          # Backend Express.js API
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── database.js       # MongoDB connection
+│   │   │   └── swagger.js        # API documentation
+│   │   ├── controllers/
+│   │   │   ├── authController.js # Authentication logic
+│   │   │   └── aiController.js   # AI integration
+│   │   ├── middleware/
+│   │   │   ├── auth.js           # JWT middleware
+│   │   │   └── errorHandler.js   # Error handling
+│   │   ├── models/
+│   │   │   └── User.js           # User schema
+│   │   ├── routes/
+│   │   │   ├── auth.js           # Auth routes
+│   │   │   └── ai.js             # AI routes
+│   │   ├── services/
+│   │   │   └── geminiService.js  # Gemini AI service
+│   │   └── utils/
+│   │       └── logger.js         # Winston logger
+│   ├── package.json
+│   └── server.js                 # Entry point
+├── pro/                          # Frontend React App
+│   ├── src/
+│   │   ├── components/
+│   │   ├── AuthPage.jsx          # Login/Signup page
+│   │   ├── Welcome.jsx           # Dashboard page
+│   │   ├── App.jsx               # Main app component
+│   │   └── index.js              # React entry point
+│   ├── public/
+│   └── package.json
+└── README.md
+>>>>>>> Stashed changes
 ```
 
-## 🛠️ Installation
+## 🎯 Modules Developed
 
+<<<<<<< Updated upstream
 1. **Clone and navigate to the project:**
    ```bash
    git clone https://github.com/yourusername/nexus_six.git
    cd nexus_six/api
    ```
+=======
+### 1. Authentication Module
+- User registration with validation
+- Secure login system
+- JWT token-based authentication
+- Password hashing with bcrypt
+- Protected routes
+>>>>>>> Stashed changes
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### 2. Frontend UI Module
+- Responsive authentication pages
+- Modern gradient-based design
+- Form validation with real-time feedback
+- Logout confirmation dialogs
+- Mobile-friendly interface
 
-3. **Environment Setup:**
-   ```bash
-   cp .env.example .env
-   ```
+### 3. Backend API Module
+- RESTful API architecture
+- MongoDB integration
+- Error handling middleware
+- API documentation with Swagger
+- Rate limiting and security headers
 
-4. **Configure environment variables in `.env`:**
-   ```env
-   # Server Configuration
-   PORT=5000
-   NODE_ENV=development
+### 4. AI Integration Module
+- Google Gemini AI integration
+- Text generation capabilities
+- Chat completion features
+- Text analysis functionality
 
+<<<<<<< Updated upstream
    # Database Configuration
    MONGODB_URI=mongodb://localhost:27017/calcnote_db
    MONGODB_DEBUG=false
@@ -568,30 +647,152 @@ The CalcNote API uses MongoDB with Mongoose ODM for data storage. Below are the 
 ```
 
 ## 🔒 Security Features
+=======
+## ✨ Features & Description
 
+### 🔐 Authentication System
+- **Secure Registration**: Username, email, and password validation
+- **Login System**: Email/password authentication with JWT tokens
+- **Auto-redirect**: Automatic redirection for authenticated users
+- **Logout Confirmation**: User-friendly logout with confirmation dialog
+
+### 🎨 Modern UI/UX
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Dark Theme**: Beautiful gradient backgrounds with purple/slate colors
+- **Interactive Elements**: Hover effects, animations, and transitions
+- **Form Validation**: Real-time client-side validation with error messages
+- **Loading States**: Visual feedback during form submissions
+>>>>>>> Stashed changes
+
+### 🛡️ Security Features
 - **Password Hashing**: Bcrypt with configurable salt rounds
 - **JWT Authentication**: Secure token-based authentication
+- **Input Validation**: Both client-side and server-side validation
 - **Rate Limiting**: Protection against brute force attacks
-- **CORS**: Configurable cross-origin resource sharing
-- **Helmet**: Security headers for protection
-- **Input Validation**: Request validation using express-validator
-- **Error Handling**: Secure error responses without sensitive data leakage
+- **CORS Configuration**: Secure cross-origin resource sharing
 
-## 📊 Monitoring & Logging
+### 🤖 AI Integration
+- **Gemini AI**: Google's latest AI model integration
+- **Text Generation**: AI-powered content creation
+- **Chat Completion**: Interactive AI conversations
+- **Text Analysis**: Sentiment analysis and content insights
 
-- **Winston Logging**: Structured logging with different levels
-- **File Rotation**: Automatic log file rotation
-- **Error Tracking**: Comprehensive error logging
-- **Health Check**: `/api/health` endpoint for monitoring
+## 🗄️ Database Structure
 
-## 🧪 Testing
+### User Collection (MongoDB)
+```javascript
+{
+  _id: ObjectId,
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    minlength: 3,
+    maxlength: 30
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}
+```
 
+## 🚀 Steps to Run Project
+
+### Prerequisites
+- Node.js (v16 or higher)
+- MongoDB (local or cloud)
+- Git
+
+### 1. Clone Repository
 ```bash
+git clone <repository-url>
+cd CalcNote
+```
+
+### 2. Backend Setup
+```bash
+# Navigate to API directory
+cd api
+
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env
+
+# Configure environment variables in .env
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/calcnote
+JWT_SECRET=your_super_secret_jwt_key_here
+JWT_EXPIRE=30d
+BCRYPT_SALT_ROUNDS=12
+GEMINI_API_KEY=your_gemini_api_key_here
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+CORS_ORIGIN=http://localhost:3000
+
+# Start backend server
+npm run dev
+```
+
+### 3. Database Setup
+```bash
+# Start MongoDB service (if local)
+mongod
+
+# MongoDB will automatically create the database when first accessed
+# Default connection: mongodb://localhost:27017/calcnote
+```
+
+### 4. Frontend Setup
+```bash
+# Navigate to frontend directory
+cd pro
+
+# Install dependencies
+npm install
+
+# Start React development server
+npm start
+```
+
+### 5. Access Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000/api
+- **API Documentation**: http://localhost:5000/api-docs
+
+## 🧪 Test Cases (Optional)
+
+### Backend Tests
+```bash
+cd api
 npm test
 ```
 
-## 📋 Environment Variables
+### Frontend Tests
+```bash
+cd pro
+npm test
+```
 
+<<<<<<< Updated upstream
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `PORT` | Server port | `5000` |
@@ -608,26 +809,73 @@ npm test
 | `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:3000` |
 | `LOG_LEVEL` | Winston logger level | `info` |
 | `LOG_FILE` | Log file path | `./logs/app.log` |
+=======
+### Manual Testing Scenarios
+1. **Registration**: Create new user account
+2. **Login**: Authenticate with valid credentials
+3. **Auto-redirect**: Test token persistence
+4. **Logout**: Confirm logout functionality
+5. **Validation**: Test form validation errors
+6. **API Endpoints**: Test all REST endpoints
+>>>>>>> Stashed changes
 
-## 🚀 Deployment
+## 📸 Screenshots & Demo
 
-1. Set `NODE_ENV=production`
-2. Configure production MongoDB URI
-3. Set secure JWT secrets
-4. Configure CORS for production domains
-5. Set up process manager (PM2, Docker, etc.)
+### Login/Signup Page
+- Beautiful gradient background with purple/slate theme
+- Real-time form validation
+- Responsive design for all devices
 
-## 📝 License
+### Welcome Dashboard
+- Clean, modern interface
+- Logout confirmation dialog
+- Smooth animations and transitions
 
-ISC
+### Demo Access
+- **Local URL**: http://localhost:3000
+- **Test Credentials**: 
+  - Email: test@example.com
+  - Password: TestPass123
+- **API Documentation**: http://localhost:5000/api-docs
+
+## 👥 Author & Contributors
+
+### Lead Developer
+- **Name**: [Your Name]
+- **Role**: Full-Stack Developer
+- **Email**: [your.email@example.com]
+- **GitHub**: [your-github-username]
+
+### Technologies Expertise
+- Frontend: React, Tailwind CSS, JavaScript
+- Backend: Node.js, Express.js, MongoDB
+- Authentication: JWT, Bcrypt
+- AI Integration: Google Gemini AI
+- DevOps: Git, npm, Environment Configuration
+
+### Development Timeline
+- **Project Start**: [Start Date]
+- **Current Version**: 1.0.0
+- **Last Updated**: [Current Date]
+
+## 📄 License
+
+This project is licensed under the ISC License.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📞 Support
+
+For support and questions:
+- Create an issue in the repository
+- Contact the development team
+- Check the API documentation for endpoint details
 
 ---
 
