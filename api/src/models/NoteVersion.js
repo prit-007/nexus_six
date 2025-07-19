@@ -15,64 +15,104 @@ const NoteVersionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  versionNumber: {
+  version: {
     type: Number,
     required: true
   },
-  createdBy: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  calculationResults: {
-    type: Object,
-    default: {}
+  // Metadata at the time of this version
+  metadata: {
+    calculationEnabled: {
+      type: Boolean,
+      default: true
+    },
+    lineReferencingEnabled: {
+      type: Boolean,
+      default: true
+    },
+    autoCalculate: {
+      type: Boolean,
+      default: true
+    },
+    decimalPrecision: {
+      type: Number,
+      default: 2
+    },
+    currencySymbol: {
+      type: String,
+      default: '$'
+    }
   },
   variables: {
     type: Map,
     of: mongoose.Schema.Types.Mixed,
     default: {}
   },
-  metadata: {
+  lastCalculationResult: {
     type: Object,
     default: {}
   },
+  // Change tracking
+  changeType: {
+    type: String,
+    enum: ['create', 'edit', 'auto-save', 'manual-save', 'close-save'],
+    default: 'edit'
+  },
   changeDescription: {
     type: String,
+    maxlength: 500,
     default: 'Version update'
   }
 }, {
   timestamps: true
 });
 
-// Compound index to ensure unique version numbers per note
-NoteVersionSchema.index({ note: 1, versionNumber: 1 }, { unique: true });
+// Indexes for performance
+NoteVersionSchema.index({ note: 1, version: -1 });
+NoteVersionSchema.index({ note: 1, createdAt: -1 });
+NoteVersionSchema.index({ user: 1, createdAt: -1 });
 
-// Static method to create a new version from a note
-NoteVersionSchema.statics.createFromNote = async function(noteId, userId, changeDescription = 'Version update') {
-  const Note = mongoose.model('Note');
-  const note = await Note.findById(noteId);
+// Static method to create version from note
+NoteVersionSchema.statics.createFromNote = async function(note, changeType = 'edit', changeDescription = 'Version update') {
+  const versionData = {
+    note: note._id,
+    title: note.title,
+    content: note.content,
+    version: note.version,
+    user: note.user,
+    metadata: note.metadata,
+    variables: note.variables,
+    lastCalculationResult: note.lastCalculationResult,
+    changeType,
+    changeDescription
+  };
   
+  const version = new this(versionData);
+  return await version.save();
+};
+
+// Method to restore note to this version
+NoteVersionSchema.methods.restoreToNote = async function() {
+  const Note = require('./Note');
+  
+  const note = await Note.findById(this.note);
   if (!note) {
     throw new Error('Note not found');
   }
   
-  // Get the latest version number
-  const latestVersion = await this.findOne({ note: noteId }).sort('-versionNumber');
-  const versionNumber = latestVersion ? latestVersion.versionNumber + 1 : 1;
+  // Update note with version data
+  note.title = this.title;
+  note.content = this.content;
+  note.metadata = this.metadata;
+  note.variables = this.variables;
+  note.lastCalculationResult = this.lastCalculationResult;
+  note.lastModified = new Date();
   
-  // Create new version
-  return this.create({
-    note: noteId,
-    title: note.title,
-    content: note.content,
-    versionNumber,
-    createdBy: userId,
-    calculationResults: note.lastCalculationResult,
-    variables: note.variables,
-    metadata: note.metadata,
-    changeDescription
-  });
+  return await note.save();
 };
 
 module.exports = mongoose.model('NoteVersion', NoteVersionSchema);

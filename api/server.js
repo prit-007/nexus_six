@@ -1,17 +1,26 @@
+const http = require('http');
 const app = require('./src/app');
 const logger = require('./src/utils/logger');
 const connectDB = require('./src/config/database');
+const socketService = require('./src/services/socketService');
 
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
 connectDB();
 
-const server = app.listen(PORT, () => {
+// Create HTTP server for Socket.IO integration
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+socketService.initialize(server);
+
+server.listen(PORT, () => {
   logger.info(`
 🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}
 📚 API Documentation: http://localhost:${PORT}/api-docs
 🔗 API Base URL: http://localhost:${PORT}/api
+⚡ Socket.IO ready for real-time collaboration
   `);
 });
 

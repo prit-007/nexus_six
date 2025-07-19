@@ -33,10 +33,22 @@ const NoteSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tag'
   }],
+  /**
+   * isPublic: Controls note visibility and sharing
+   * - true: Note can be viewed by anyone with the link, appears in public searches
+   * - false: Note is private, only visible to the owner and explicitly shared users
+   * Use cases: Sharing knowledge, tutorials, public documentation
+   */
   isPublic: {
     type: Boolean,
     default: false
   },
+  /**
+   * isArchived: Controls note visibility in regular views
+   * - true: Note is archived (hidden from main views but not deleted)
+   * - false: Note is active and visible in normal views
+   * Use cases: Organizing workspace, hiding old notes without deletion, temporary storage
+   */
   isArchived: {
     type: Boolean,
     default: false
@@ -82,6 +94,23 @@ const NoteSchema = new mongoose.Schema({
   },
   lastViewedAt: {
     type: Date
+  },
+  // Version control and auto-save fields
+  lastModified: {
+    type: Date,
+    default: Date.now
+  },
+  version: {
+    type: Number,
+    default: 1
+  },
+  // Auto-save metadata
+  autoSaveEnabled: {
+    type: Boolean,
+    default: true
+  },
+  lastAutoSave: {
+    type: Date
   }
 }, {
   timestamps: true,
@@ -99,6 +128,43 @@ NoteSchema.virtual('versions', {
 
 // Create a text index for searching
 NoteSchema.index({ title: 'text', content: 'text' });
+NoteSchema.index({ user: 1, isArchived: 1 });
+NoteSchema.index({ lastModified: -1 });
+NoteSchema.index({ version: -1 });
+
+// Virtual for checking if note has been modified recently (for auto-save)
+NoteSchema.virtual('isRecentlyModified').get(function() {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  return this.lastModified > fiveMinutesAgo;
+});
+
+// Middleware to increment version on save
+NoteSchema.pre('save', async function(next) {
+  if (this.isModified('content') || this.isModified('title')) {
+    this.version += 1;
+    this.lastModified = new Date();
+  }
+  
+  // Create version history for significant changes
+  if (this.isModified('content') || this.isModified('title')) {
+    // Only create version if this is not a new document
+    if (!this.isNew) {
+      try {
+        const NoteVersion = require('./NoteVersion');
+        // Create version with previous data (before current changes)
+        const originalNote = await this.constructor.findById(this._id);
+        if (originalNote) {
+          await NoteVersion.createFromNote(originalNote, 'edit', 'Content modified');
+        }
+      } catch (error) {
+        console.error('Error creating version:', error);
+        // Don't block the save if version creation fails
+      }
+    }
+  }
+  
+  next();
+});
 
 // Middleware to handle password protection
 NoteSchema.pre('save', async function(next) {
