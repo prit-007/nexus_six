@@ -5,8 +5,10 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+
 // Import utilities
 const logger = require('./utils/logger');
+const { specs, swaggerUi, swaggerOptions } = require('./config/swagger');
 
 // Create Express app
 const app = express();
@@ -32,8 +34,8 @@ const limiter = rateLimit({
     status: 'error',
     message: 'Too many requests from this IP, please try again later.',
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true, 
+  legacyHeaders: false, 
 });
 
 app.use('/api/', limiter);
@@ -61,6 +63,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 
+// API Documentation with Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerOptions));
+
 // Import routes
 const userRoutes = require('./routes/userRoutes');
 const noteRoutes = require('./routes/noteRoutes');
@@ -73,13 +78,101 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/groups', groupRoutes);
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: API Information
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: API information and available endpoints
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: CalcNote API
+ *                 version:
+ *                   type: string
+ *                   example: 1.0.0
+ *                 documentation:
+ *                   type: string
+ *                   example: /api-docs
+ *                 endpoints:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: string
+ *                       example: /api/users
+ *                     notes:
+ *                       type: string
+ *                       example: /api/notes
+ *                     tags:
+ *                       type: string
+ *                       example: /api/tags
+ *                     groups:
+ *                       type: string
+ *                       example: /api/groups
+ */
 // Root route
 app.get('/', (req, res) => {
   res.json({
     success: true,
     message: 'CalcNote API',
     version: '1.0.0',
-    documentation: '/api-docs'
+    documentation: '/api-docs',
+    endpoints: {
+      users: '/api/users',
+      notes: '/api/notes',
+      tags: '/api/tags',
+      groups: '/api/groups'
+    }
+  });
+});
+
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Health Check
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: API health status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: API is healthy
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                   description: Server uptime in seconds
+ *                 environment:
+ *                   type: string
+ *                   example: development
+ */
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'API is healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
