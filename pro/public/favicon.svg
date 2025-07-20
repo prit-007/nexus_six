@@ -1,0 +1,43 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background rounded square -->
+  <rect width="32" height="32" rx="8" fill="url(#gradient1)"/>
+  
+  <!-- Main note/document shape -->
+  <path d="M8 6C8 5.44772 8.44772 5 9 5H19L25 11V25C25 25.5523 24.5523 26 24 26H9C8.44772 26 8 25.5523 8 25V6Z" fill="white"/>
+  
+  <!-- Folded corner -->
+  <path d="M19 5V10C19 10.5523 19.4477 11 20 11H25L19 5Z" fill="#E5E7EB"/>
+  
+  <!-- Mathematical symbols and lines -->
+  <!-- Equals sign -->
+  <rect x="11" y="13" width="6" height="1" rx="0.5" fill="#3B82F6"/>
+  <rect x="11" y="15" width="6" height="1" rx="0.5" fill="#3B82F6"/>
+  
+  <!-- Plus sign -->
+  <rect x="19.5" y="12" width="1" height="4" rx="0.5" fill="#10B981"/>
+  <rect x="18" y="13.5" width="4" height="1" rx="0.5" fill="#10B981"/>
+  
+  <!-- Numbers/variables -->
+  <circle cx="12" cy="19" r="1" fill="#F59E0B"/>
+  <circle cx="15" cy="19" r="1" fill="#EF4444"/>
+  <circle cx="18" cy="19" r="1" fill="#8B5CF6"/>
+  
+  <!-- Calculator accent -->
+  <rect x="20" y="21" width="3" height="3" rx="1" fill="url(#gradient2)"/>
+  <circle cx="21" cy="22" r="0.3" fill="white"/>
+  <circle cx="22" cy="22" r="0.3" fill="white"/>
+  <circle cx="21" cy="23" r="0.3" fill="white"/>
+  <circle cx="22" cy="23" r="0.3" fill="white"/>
+  
+  <defs>
+    <linearGradient id="gradient1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF6B35"/>
+      <stop offset="0.5" stop-color="#F7931E"/>
+      <stop offset="1" stop-color="#FFD23F"/>
+    </linearGradient>
+    <linearGradient id="gradient2" x1="20" y1="21" x2="23" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+</svg>

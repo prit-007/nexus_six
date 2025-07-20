@@ -14,8 +14,11 @@ import {
   Folder,
   Search,
   ArrowLeft,
-  Star
+  Star,
+  Settings as SettingsIcon
 } from 'lucide-react';
+import Settings from '../components/Settings';
+import '../App.css';
 import './NotesApp.css';
 
 const NotesApp = () => {
@@ -56,6 +59,14 @@ const NotesApp = () => {
     content: '',
     isProtected: false,
     password: ''
+  });
+
+  // Settings state
+  const [showSettings, setShowSettings] = useState(false);
+  const [userSettings, setUserSettings] = useState({
+    fontSize: 14,
+    isDarkMode: false,
+    decimalPrecision: 2
   });
 
   // Calculation state
@@ -334,10 +345,59 @@ const NotesApp = () => {
     };
   }, [navigate, activeNote, activeNoteTitle, editorContent]);
 
-  // Save notes to localStorage
-  const saveNotesToStorage = useCallback((notesToSave) => {
-    localStorage.setItem('notes', JSON.stringify(notesToSave));
+  // Load user settings from localStorage
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('userSettings');
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setUserSettings(prev => ({ ...prev, ...parsed }));
+
+        // Apply theme
+        if (parsed.isDarkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (error) {
+        console.error('Error loading user settings:', error);
+      }
+    }
   }, []);
+
+  // Save user settings to localStorage
+  const saveUserSettings = useCallback((newSettings) => {
+    setUserSettings(newSettings);
+    localStorage.setItem('userSettings', JSON.stringify(newSettings));
+
+    // Apply theme immediately
+    if (newSettings.isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Update noteMetadata decimal precision if it affects calculations
+    if (newSettings.decimalPrecision !== userSettings.decimalPrecision) {
+      setNoteMetadata(prev => ({
+        ...prev,
+        decimalPrecision: newSettings.decimalPrecision
+      }));
+    }
+  }, [userSettings]);
+
+  // Settings handlers
+  const handleFontSizeChange = useCallback((fontSize) => {
+    saveUserSettings({ ...userSettings, fontSize });
+  }, [userSettings, saveUserSettings]);
+
+  const handleThemeChange = useCallback((isDarkMode) => {
+    saveUserSettings({ ...userSettings, isDarkMode });
+  }, [userSettings, saveUserSettings]);
+
+  const handleDecimalPrecisionChange = useCallback((decimalPrecision) => {
+    saveUserSettings({ ...userSettings, decimalPrecision });
+  }, [userSettings, saveUserSettings]);
 
   // Process calculations
   const processCalculations = useCallback(async () => {
@@ -1045,10 +1105,21 @@ const NotesApp = () => {
       <div className="sidebar">
         <div className="sidebar-header">
           <div className="app-title">
-            <Calculator size={24} />
-            <span>Smart Notes</span>
+            <img
+              src="/notulate-logo.svg"
+              alt="Notulate Logo"
+              className="w-6 h-6 rounded sidebar-logo"
+            />
+            <span>Notulate</span>
           </div>
           <div className="header-actions">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="settings-btn"
+              title="Settings"
+            >
+              <SettingsIcon size={16} />
+            </button>
             <button
               onClick={() => navigate('/dashboard')}
               className="back-btn"
@@ -1276,6 +1347,7 @@ max(2, 7, 4, 9)
 Press Enter or = for auto-calculation
 Press Backspace to restore original expression"
                   className="note-textarea"
+                  style={{ fontSize: `${userSettings.fontSize}px` }}
                 />
               </div>
             </div>
@@ -1391,6 +1463,19 @@ Press Backspace to restore original expression"
             </div>
           </div>
         </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings
+          onClose={() => setShowSettings(false)}
+          fontSize={userSettings.fontSize}
+          onFontSizeChange={handleFontSizeChange}
+          decimalPrecision={userSettings.decimalPrecision}
+          onDecimalPrecisionChange={handleDecimalPrecisionChange}
+          isDarkMode={userSettings.isDarkMode}
+          onThemeChange={handleThemeChange}
+        />
       )}
     </div>
   );
