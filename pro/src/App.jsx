@@ -35,7 +35,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<NotesApp />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/:id" element={<NotesApp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/auth" element={<AuthPage />} />

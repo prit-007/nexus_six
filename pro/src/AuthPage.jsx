@@ -115,9 +115,9 @@ export default function AuthPage() {
 
       if (data.success) {
         if (isLogin) {
-          // Login successful - store token and redirect
+          // Login successful - store token and redirect to dashboard
           localStorage.setItem('token', data.token);
-          navigate('/welcome');
+          navigate('/dashboard');
         } else {
           // Registration successful - show verification message
           alert('Registration successful! Please check your email to verify your account before logging in.');
@@ -186,7 +186,7 @@ export default function AuthPage() {
             <h1 className="text-5xl font-bold mb-6 leading-tight">
               Welcome to
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">
-                CalcNote
+                Notulate
               </span>
             </h1>
           </div>

@@ -368,18 +368,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Welcome Message */}
-      {user && (
-        <div className="absolute top-4 left-4 z-10">
-          <div className={`bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 transition-all duration-500 ${showWelcome ? 'animate-pulse bg-green-500/20 border border-green-400' : ''
-            }`}>
-            <p className="text-white font-semibold">
-              Welcome, {user.username}!
-              {showWelcome && <span className="text-green-400 ml-2">✓ Email Verified</span>}
-            </p>
-          </div>
-        </div>
-      )}
+      
 
       {/* Header */}
       <div className="flex justify-between items-center p-6">
