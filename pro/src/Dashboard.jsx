@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LogOut, Plus, Lock, Trash2, BookOpen, User, FileText, Building, Home, Cloud, Settings, Briefcase, Calendar, Beaker, FlaskConical } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -16,54 +16,19 @@ export default function Dashboard() {
   const [selectedJournal, setSelectedJournal] = useState(null);
   const [enteredPassword, setEnteredPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [journals, setJournals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newJournal, setNewJournal] = useState({
+    title: '',
+    description: '',
+    color: '#3B82F6',
+    icon: 'BookOpen',
+    hasPassword: false,
+    password: ''
+  });
 
-  useEffect(() => {
-    // Check for email verification success
-    const verified = searchParams.get('verified');
-    const token = searchParams.get('token');
-
-    if (verified === 'true' && token) {
-      // Store the token and show success message
-      localStorage.setItem('token', token);
-      setShowWelcome(true);
-
-      // Clean up URL parameters
-      navigate('/', { replace: true });
-    }
-
-    // Check for verification errors
-    const error = searchParams.get('error');
-    if (error) {
-      let errorMessage = 'Verification failed';
-      if (error === 'expired') {
-        errorMessage = 'Verification link has expired. Please request a new one.';
-      } else if (error === 'invalid') {
-        errorMessage = 'Invalid verification link.';
-      } else if (error === 'server') {
-        errorMessage = 'Server error during verification.';
-      }
-
-      alert(errorMessage);
-      navigate('/auth', { replace: true });
-    }
-
-    // Fetch user data if token exists
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      fetchUserData(storedToken);
-      fetchJournals(); // Fetch journals when user is authenticated
-    }
-  }, [searchParams, navigate, fetchUserData, fetchJournals]);
-
-  // Fetch journals when component mounts
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetchJournals();
-    }
-  }, [fetchJournals]);
-
-  const fetchUserData = async (token) => {
+  // Define fetchUserData with useCallback to prevent re-creation on every render
+  const fetchUserData = useCallback(async (token) => {
     try {
       const response = await axios.get('http://localhost:1969/api/users/me', {
         headers: {
@@ -82,10 +47,10 @@ export default function Dashboard() {
         navigate('/auth');
       }
     }
-  };
+  }, [navigate]);
 
-  // API functions for journals (groups) and notes
-  const fetchJournals = async () => {
+  // Define fetchJournals with useCallback
+  const fetchJournals = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -100,16 +65,16 @@ export default function Dashboard() {
         })
       ]);
 
-      const allJournals = [];
+      let allJournals = [];
 
       // Transform groups to journal format
       if (groupsResponse.data.success) {
         const transformedGroups = groupsResponse.data.data.map(group => {
+          // Parse password from description if exists
           let description = group.description || '';
-          let hasPassword = false;
           let password = '';
+          let hasPassword = false;
 
-          // Parse password info from description
           if (description.includes('||PASSWORD:')) {
             const parts = description.split('||PASSWORD:');
             description = parts[0];
@@ -167,8 +132,56 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
+  // First useEffect for URL parameters and initial setup
+  useEffect(() => {
+    // Check for email verification success
+    const verified = searchParams.get('verified');
+    const token = searchParams.get('token');
+
+    if (verified === 'true' && token) {
+      // Store the token and show success message
+      localStorage.setItem('token', token);
+      setShowWelcome(true);
+
+      // Clean up URL parameters
+      navigate('/', { replace: true });
+    }
+
+    // Check for verification errors
+    const error = searchParams.get('error');
+    if (error) {
+      let errorMessage = 'Verification failed';
+      if (error === 'expired') {
+        errorMessage = 'Verification link has expired. Please request a new one.';
+      } else if (error === 'invalid') {
+        errorMessage = 'Invalid verification link.';
+      } else if (error === 'server') {
+        errorMessage = 'Server error during verification.';
+      }
+
+      alert(errorMessage);
+      navigate('/auth', { replace: true });
+    }
+
+    // Fetch user data if token exists
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      fetchUserData(storedToken);
+      fetchJournals(); // Fetch journals when user is authenticated
+    }
+  }, [searchParams, navigate, fetchUserData, fetchJournals]);
+
+  // Second useEffect for fetching journals when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchJournals();
+    }
+  }, [fetchJournals]);
+
+  // API functions for journals (groups) and notes
   const createJournalAPI = async (journalData) => {
     try {
       const token = localStorage.getItem('token');
@@ -233,41 +246,19 @@ export default function Dashboard() {
     }
   };
 
-  // Initialize journals state
-  const [journals, setJournals] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-
-
-  const [newJournal, setNewJournal] = useState({
-    title: '',
-    description: '',
-    color: '#3B82F6',
-    icon: 'BookOpen',
-    hasPassword: false,
-    password: ''
-  });
-
-  const colors = [
-    '#3B82F6', // Blue
-    '#10B981', // Emerald
-    '#8B5CF6', // Violet
-    '#F59E0B', // Amber
-    '#EF4444', // Red
-    '#06B6D4', // Cyan
-    '#84CC16', // Lime
-    '#F97316', // Orange
-    '#EC4899', // Pink
-    '#6366F1', // Indigo
-    '#14B8A6', // Teal
-    '#A855F7'  // Purple
-  ];
-
+  // Icon components mapping
   const iconComponents = {
-    BookOpen, User, FileText, Building, Home, Cloud, Settings, Briefcase, Calendar, Beaker, FlaskConical, Lock
+    BookOpen, User, FileText, Building, Home, Cloud, Settings, 
+    Briefcase, Calendar, Beaker, FlaskConical, Lock
   };
 
   const icons = ['BookOpen', 'User', 'FileText', 'Building', 'Home', 'Cloud', 'Settings', 'Briefcase', 'Calendar', 'Beaker', 'FlaskConical', 'Lock'];
+
+  const colors = [
+    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', 
+    '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+    '#14B8A6', '#F43F5E', '#8B5A2B', '#6B7280', '#1F2937'
+  ];
 
   const handleJournalClick = (journal) => {
     if (journal.hasPassword) {
