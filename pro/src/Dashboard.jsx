@@ -248,14 +248,14 @@ export default function Dashboard() {
 
   // Icon components mapping
   const iconComponents = {
-    BookOpen, User, FileText, Building, Home, Cloud, Settings, 
+    BookOpen, User, FileText, Building, Home, Cloud, Settings,
     Briefcase, Calendar, Beaker, FlaskConical, Lock
   };
 
   const icons = ['BookOpen', 'User', 'FileText', 'Building', 'Home', 'Cloud', 'Settings', 'Briefcase', 'Calendar', 'Beaker', 'FlaskConical', 'Lock'];
 
   const colors = [
-    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', 
+    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
     '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
     '#14B8A6', '#F43F5E', '#8B5A2B', '#6B7280', '#1F2937'
   ];
@@ -369,7 +369,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Welcome Message */}
-      {user && (
+      {/* {user && (
         <div className="absolute top-4 left-4 z-10">
           <div className={`bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 transition-all duration-500 ${showWelcome ? 'animate-pulse bg-green-500/20 border border-green-400' : ''
             }`}>
@@ -379,7 +379,7 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Header */}
       <div className="flex justify-between items-center p-6">

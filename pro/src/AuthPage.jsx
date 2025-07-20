@@ -34,7 +34,7 @@ export default function AuthPage() {
       } else if (error === 'server') {
         errorMessage = 'Server error during verification. Please try again.';
       }
-      
+
       alert(errorMessage);
       // Clean up URL parameters
       navigate('/auth', { replace: true });
@@ -68,7 +68,7 @@ export default function AuthPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!isLogin) {
       newErrors.username = validateUsername(formData.username);
     }
@@ -129,7 +129,7 @@ export default function AuthPage() {
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Server error';
-      
+
       // Handle email verification required
       if (error.response?.data?.needsVerification) {
         alert(`${errorMessage}\n\nPlease check your email and click the verification link before logging in.`);
@@ -186,7 +186,7 @@ export default function AuthPage() {
             <h1 className="text-5xl font-bold mb-6 leading-tight">
               Welcome to
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">
-                CalcNote
+                Notulate
               </span>
             </h1>
           </div>
@@ -236,9 +236,8 @@ export default function AuthPage() {
                     value={formData.username}
                     onChange={handleInputChange}
                     placeholder="Username"
-                    className={`w-full pl-12 pr-4 py-3 bg-white bg-opacity-10 border ${
-                      errors.username ? 'border-red-500' : 'border-white border-opacity-20'
-                    } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-300 backdrop-blur-sm transition-all duration-200`}
+                    className={`w-full pl-12 pr-4 py-3 bg-white bg-opacity-10 border ${errors.username ? 'border-red-500' : 'border-white border-opacity-20'
+                      } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-300 backdrop-blur-sm transition-all duration-200`}
                     required
                   />
                   <ErrorMessage error={errors.username} />
@@ -253,9 +252,8 @@ export default function AuthPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Email address"
-                  className={`w-full pl-12 pr-4 py-3 bg-white bg-opacity-10 border ${
-                    errors.email ? 'border-red-500' : 'border-white border-opacity-20'
-                  } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-300 backdrop-blur-sm transition-all duration-200`}
+                  className={`w-full pl-12 pr-4 py-3 bg-white bg-opacity-10 border ${errors.email ? 'border-red-500' : 'border-white border-opacity-20'
+                    } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-300 backdrop-blur-sm transition-all duration-200`}
                   required
                 />
                 <ErrorMessage error={errors.email} />
@@ -269,9 +267,8 @@ export default function AuthPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Password"
-                  className={`w-full pl-12 pr-12 py-3 bg-white bg-opacity-10 border ${
-                    errors.password ? 'border-red-500' : 'border-white border-opacity-20'
-                  } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-300 backdrop-blur-sm transition-all duration-200`}
+                  className={`w-full pl-12 pr-12 py-3 bg-white bg-opacity-10 border ${errors.password ? 'border-red-500' : 'border-white border-opacity-20'
+                    } rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-300 backdrop-blur-sm transition-all duration-200`}
                   required
                 />
                 <button
@@ -298,9 +295,8 @@ export default function AuthPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300 focus:ring-opacity-50 transition-all duration-200 transform hover:scale-105 ${
-                  isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300 focus:ring-opacity-50 transition-all duration-200 transform hover:scale-105 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
               >
                 {isSubmitting ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
               </button>
