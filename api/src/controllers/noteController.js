@@ -11,18 +11,18 @@ exports.getNotes = async (req, res) => {
   try {
     // Build query with filters
     const query = { user: req.user.id };
-    
+
     // Filter by group if provided
     if (req.query.group) {
       query.group = req.query.group;
     }
-    
+
     // Filter by tags if provided
     if (req.query.tags) {
       const tagIds = req.query.tags.split(',');
       query.tags = { $in: tagIds };
     }
-    
+
     // Filter by archived status
     if (req.query.archived) {
       query.isArchived = req.query.archived === 'true';
@@ -30,12 +30,12 @@ exports.getNotes = async (req, res) => {
       // By default, exclude archived notes
       query.isArchived = false;
     }
-    
+
     // Filter by favorite status
     if (req.query.favorite) {
       query.isFavorite = req.query.favorite === 'true';
     }
-    
+
     // Search by title or content
     if (req.query.search) {
       query.$text = { $search: req.query.search };
@@ -125,10 +125,10 @@ exports.getNote = async (req, res) => {
           isProtected: true
         });
       }
-      
+
       // Verify password
       const isMatch = await note.verifyPassword(req.body.password);
-      
+
       if (!isMatch) {
         return res.status(401).json({
           success: false,
@@ -165,34 +165,33 @@ exports.createNote = async (req, res) => {
   try {
     // Add user to request body
     req.body.user = req.user.id;
-    
+
     // Start a session for transaction
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
       // Create note
       const note = await Note.create([req.body], { session });
-      
+
       // Create initial version
       await NoteVersion.createFromNote(
-        note[0]._id,
-        req.user.id,
-        'Initial version',
-        session
+        note[0],
+        'create',
+        'Initial version'
       );
-      
+
       // Update tag usage counts if tags are provided
       if (req.body.tags && req.body.tags.length > 0) {
         for (const tagId of req.body.tags) {
           await Tag.updateUsageCount(tagId);
         }
       }
-      
+
       // Commit transaction
       await session.commitTransaction();
       session.endSession();
-      
+
       res.status(201).json({
         success: true,
         data: note[0]
@@ -239,7 +238,7 @@ exports.updateNote = async (req, res) => {
     // Start a session for transaction
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
       // Create a version before updating
       await NoteVersion.createFromNote(
@@ -248,7 +247,7 @@ exports.updateNote = async (req, res) => {
         req.body.changeDescription || 'Update',
         session
       );
-      
+
       // Update note
       note = await Note.findByIdAndUpdate(
         req.params.id,
@@ -259,24 +258,24 @@ exports.updateNote = async (req, res) => {
           session
         }
       );
-      
+
       // Update tag usage counts if tags are modified
       if (req.body.tags) {
         // Get all unique tags (old and new)
         const oldTags = note.tags.map(tag => tag.toString());
         const newTags = req.body.tags;
         const allTags = [...new Set([...oldTags, ...newTags])];
-        
+
         // Update usage count for all affected tags
         for (const tagId of allTags) {
           await Tag.updateUsageCount(tagId);
         }
       }
-      
+
       // Commit transaction
       await session.commitTransaction();
       session.endSession();
-      
+
       res.status(200).json({
         success: true,
         data: note
@@ -323,26 +322,26 @@ exports.deleteNote = async (req, res) => {
     // Start a session for transaction
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
       // Get tags before deletion for updating counts later
       const noteTags = [...note.tags];
-      
+
       // Delete note
       await note.deleteOne({ session });
-      
+
       // Delete all versions of the note
       await NoteVersion.deleteMany({ note: req.params.id }, { session });
-      
+
       // Update tag usage counts
       for (const tagId of noteTags) {
         await Tag.updateUsageCount(tagId);
       }
-      
+
       // Commit transaction
       await session.commitTransaction();
       session.endSession();
-      
+
       res.status(200).json({
         success: true,
         data: {}
@@ -495,7 +494,7 @@ exports.restoreNoteVersion = async (req, res) => {
     // Start a session for transaction
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
       // Create a version of current state before restoring
       await NoteVersion.createFromNote(
@@ -504,16 +503,16 @@ exports.restoreNoteVersion = async (req, res) => {
         'Pre-restore checkpoint',
         session
       );
-      
+
       // Update note with version data
       note.title = version.title;
       note.content = version.content;
       note.lastCalculationResult = version.calculationResults;
       note.variables = version.variables;
-      
+
       // Save note
       await note.save({ session });
-      
+
       // Create a new version marking the restoration
       await NoteVersion.create([{
         note: note._id,
@@ -525,11 +524,11 @@ exports.restoreNoteVersion = async (req, res) => {
         variables: note.variables,
         changeDescription: `Restored to version ${version.versionNumber}`
       }], { session });
-      
+
       // Commit transaction
       await session.commitTransaction();
       session.endSession();
-      
+
       res.status(200).json({
         success: true,
         data: note

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LogOut, Plus, MoreVertical, Lock, Trash2, BookOpen, User, FileText, Building, Home, Cloud, Settings, Briefcase, Calendar, Beaker, FlaskConical } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LogOut, Plus, Lock, Trash2, BookOpen, User, FileText, Building, Home, Cloud, Settings, Briefcase, Calendar, Beaker, FlaskConical } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
@@ -20,12 +20,12 @@ export default function Dashboard() {
     // Check for email verification success
     const verified = searchParams.get('verified');
     const token = searchParams.get('token');
-    
+
     if (verified === 'true' && token) {
       // Store the token and show success message
       localStorage.setItem('token', token);
       setShowWelcome(true);
-      
+
       // Clean up URL parameters
       navigate('/', { replace: true });
     }
@@ -41,7 +41,7 @@ export default function Dashboard() {
       } else if (error === 'server') {
         errorMessage = 'Server error during verification.';
       }
-      
+
       alert(errorMessage);
       navigate('/auth', { replace: true });
     }
@@ -50,8 +50,17 @@ export default function Dashboard() {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       fetchUserData(storedToken);
+      fetchJournals(); // Fetch journals when user is authenticated
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, fetchUserData, fetchJournals]);
+
+  // Fetch journals when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchJournals();
+    }
+  }, [fetchJournals]);
 
   const fetchUserData = async (token) => {
     try {
@@ -60,7 +69,7 @@ export default function Dashboard() {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       if (response.data.success) {
         setUser(response.data.data);
       }
@@ -74,28 +83,160 @@ export default function Dashboard() {
     }
   };
 
-  // Update the journals state initialization to load from localStorage
-  const [journals, setJournals] = useState(() => {
-    const savedJournals = localStorage.getItem('journals');
-    if (savedJournals) {
-      return JSON.parse(savedJournals);
+  // API functions for journals (groups) and notes
+  const fetchJournals = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      // Fetch both groups and individual notes
+      const [groupsResponse, notesResponse] = await Promise.all([
+        axios.get('http://localhost:1969/api/groups', {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get('http://localhost:1969/api/notes', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+
+      const allJournals = [];
+
+      // Transform groups to journal format
+      if (groupsResponse.data.success) {
+        const transformedGroups = groupsResponse.data.data.map(group => {
+          let description = group.description || '';
+          let hasPassword = false;
+          let password = '';
+
+          // Parse password info from description
+          if (description.includes('||PASSWORD:')) {
+            const parts = description.split('||PASSWORD:');
+            description = parts[0];
+            password = parts[1];
+            hasPassword = true;
+          }
+
+          return {
+            id: group._id,
+            title: group.name,
+            description: description,
+            color: group.color,
+            icon: group.icon,
+            hasPassword: hasPassword,
+            password: password,
+            content: '',
+            type: 'group',
+            createdAt: group.createdAt,
+            updatedAt: group.updatedAt
+          };
+        });
+        allJournals.push(...transformedGroups);
+      }
+
+      // Transform individual notes to journal format
+      if (notesResponse.data.success) {
+        const transformedNotes = notesResponse.data.data
+          .filter(note => !note.group) // Only notes that are not in a group
+          .map(note => ({
+            id: note._id,
+            title: note.title,
+            description: note.content ? note.content.substring(0, 100) + '...' : '',
+            color: '#6366F1', // Default color for individual notes
+            icon: 'FileText',
+            hasPassword: note.isProtected,
+            password: '', // Password verification will be handled by API
+            content: note.content,
+            type: 'note',
+            createdAt: note.createdAt,
+            updatedAt: note.updatedAt
+          }));
+        allJournals.push(...transformedNotes);
+      }
+
+      // Sort by creation date (newest first)
+      allJournals.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setJournals(allJournals);
+
+    } catch (error) {
+      console.error('Error fetching journals and notes:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/auth');
+      }
+    } finally {
+      setLoading(false);
     }
-    return []; // Start with empty array instead of static data
-  });
-
-  // Add useEffect to save to localStorage whenever journals change
-  useEffect(() => {
-    localStorage.setItem('journals', JSON.stringify(journals));
-  }, [journals]);
-
-  const updateJournal = (id, updates) => {
-    setJournals(prev => {
-      const updated = prev.map(journal => 
-        journal.id === parseInt(id) ? { ...journal, ...updates } : journal
-      );
-      return updated;
-    });
   };
+
+  const createJournalAPI = async (journalData) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Prepare description with password info if needed
+      let description = journalData.description;
+      if (journalData.hasPassword && journalData.password) {
+        // Store password info in a special format (not secure, for demo only)
+        description = `${journalData.description}||PASSWORD:${journalData.password}`;
+      }
+
+      const response = await axios.post('http://localhost:1969/api/groups', {
+        name: journalData.title,
+        description: description,
+        color: journalData.color,
+        icon: journalData.icon
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        const newJournal = {
+          id: response.data.data._id,
+          title: response.data.data.name,
+          description: journalData.description, // Store original description without password
+          color: response.data.data.color,
+          icon: response.data.data.icon,
+          hasPassword: journalData.hasPassword,
+          password: journalData.password,
+          content: '',
+          createdAt: response.data.data.createdAt,
+          updatedAt: response.data.data.updatedAt
+        };
+        setJournals(prev => [newJournal, ...prev]);
+        return newJournal;
+      }
+    } catch (error) {
+      console.error('Error creating journal:', error);
+      throw error;
+    }
+  };
+
+  const deleteJournalAPI = async (journal) => {
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = journal.type === 'note'
+        ? `http://localhost:1969/api/notes/${journal.id}`
+        : `http://localhost:1969/api/groups/${journal.id}`;
+
+      await axios.delete(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setJournals(prev => prev.filter(j => j.id !== journal.id));
+    } catch (error) {
+      console.error('Error deleting journal:', error);
+      throw error;
+    }
+  };
+
+  // Initialize journals state
+  const [journals, setJournals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+
 
   const [newJournal, setNewJournal] = useState({
     title: '',
@@ -134,17 +275,52 @@ export default function Dashboard() {
       setEnteredPassword('');
       setPasswordError('');
     } else {
-      // Navigate to note page
-      navigate(`/note/${journal.id}`);
+      // Navigate based on type
+      if (journal.type === 'note') {
+        // For individual notes, navigate directly to the note
+        navigate(`/${journal.id}`);
+      } else {
+        // For groups, navigate to notes filtered by group
+        navigate(`/notes?group=${journal.id}`);
+      }
     }
   };
 
-  const handlePasswordSubmit = () => {
-    if (enteredPassword === selectedJournal.password) {
-      setShowPasswordDialog(false);
-      navigate(`/note/${selectedJournal.id}`);
-    } else {
-      setPasswordError('Invalid password');
+  const handlePasswordSubmit = async () => {
+    try {
+      if (selectedJournal.type === 'note') {
+        // For notes, verify password via API
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.post(`http://localhost:1969/api/notes/${selectedJournal.id}`, {
+            password: enteredPassword
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (response.data.success) {
+            setShowPasswordDialog(false);
+            navigate(`/${selectedJournal.id}`);
+          }
+        } catch (error) {
+          if (error.response?.status === 401) {
+            setPasswordError('Invalid password');
+          } else {
+            setPasswordError('Error verifying password');
+          }
+        }
+      } else {
+        // For groups, verify password on frontend (temporary solution)
+        if (enteredPassword === selectedJournal.password) {
+          setShowPasswordDialog(false);
+          navigate(`/notes?group=${selectedJournal.id}`);
+        } else {
+          setPasswordError('Invalid password');
+        }
+      }
+    } catch (error) {
+      console.error('Password verification error:', error);
+      setPasswordError('Error verifying password');
     }
   };
 
@@ -154,40 +330,40 @@ export default function Dashboard() {
     setShowDeleteDialog(true);
   };
 
-  const handleDeleteConfirm = () => {
-    setJournals(journals.filter(j => j.id !== selectedJournal.id));
-    setShowDeleteDialog(false);
-    setSelectedJournal(null);
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteJournalAPI(selectedJournal);
+      setShowDeleteDialog(false);
+      setSelectedJournal(null);
+    } catch (error) {
+      console.error('Failed to delete journal:', error);
+      alert('Failed to delete journal. Please try again.');
+    }
   };
 
-  const handleCreateJournal = () => {
+  const handleCreateJournal = async () => {
     if (newJournal.title.trim()) {
-      const journal = {
-        id: Date.now(),
-        title: newJournal.title,
-        description: newJournal.description,
-        color: newJournal.color,
-        icon: newJournal.icon,
-        hasPassword: newJournal.hasPassword,
-        password: newJournal.password,
-        content: '' // Add content field
-      };
-      setJournals([...journals, journal]);
-      setNewJournal({
-        title: '',
-        description: '',
-        color: '#3B82F6',
-        icon: 'BookOpen',
-        hasPassword: false,
-        password: ''
-      });
-      setShowCreateModal(false);
+      try {
+        await createJournalAPI(newJournal);
+        setNewJournal({
+          title: '',
+          description: '',
+          color: '#3B82F6',
+          icon: 'BookOpen',
+          hasPassword: false,
+          password: ''
+        });
+        setShowCreateModal(false);
+      } catch (error) {
+        console.error('Failed to create journal:', error);
+        alert('Failed to create journal. Please try again.');
+      }
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('journals'); // Optional: clear journals on logout
+    setJournals([]); // Clear journals from state
     navigate('/auth');
   };
 
@@ -196,22 +372,17 @@ export default function Dashboard() {
     return IconComponent ? <IconComponent className={className} /> : <BookOpen className={className} />;
   };
 
-  React.useEffect(() => {
-    // Make updateJournal available globally for NotePage
-    window.updateJournal = updateJournal;
-    window.getJournal = (id) => journals.find(j => j.id === parseInt(id));
-  }, [journals]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Welcome Message */}
       {user && (
         <div className="absolute top-4 left-4 z-10">
-          <div className={`bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 transition-all duration-500 ${
-            showWelcome ? 'animate-pulse bg-green-500/20 border border-green-400' : ''
-          }`}>
+          <div className={`bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 transition-all duration-500 ${showWelcome ? 'animate-pulse bg-green-500/20 border border-green-400' : ''
+            }`}>
             <p className="text-white font-semibold">
-              Welcome, {user.username}! 
+              Welcome, {user.username}!
               {showWelcome && <span className="text-green-400 ml-2">✓ Email Verified</span>}
             </p>
           </div>
@@ -220,7 +391,10 @@ export default function Dashboard() {
 
       {/* Header */}
       <div className="flex justify-between items-center p-6">
-        <h1 className="text-2xl font-bold text-white">Journals</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Journals & Notes</h1>
+          <p className="text-gray-300 text-sm">Manage your journals and individual notes</p>
+        </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setShowCreateModal(true)}
@@ -241,15 +415,19 @@ export default function Dashboard() {
 
       {/* Journals Grid */}
       <div className="px-6 pb-6">
-        {journals.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-white text-lg">Loading journals...</div>
+          </div>
+        ) : journals.length === 0 ? (
           // Empty state encouragement
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 max-w-md">
               <div className="text-6xl mb-4">📝</div>
               <h2 className="text-2xl font-bold text-white mb-4">Start Your Journey</h2>
               <p className="text-gray-300 mb-6 leading-relaxed">
-                Create your first journal to begin capturing your thoughts, ideas, and memories. 
-                Your digital notebook awaits!
+                Create your first journal to organize your notes, or start writing individual notes.
+                Your digital workspace awaits!
               </p>
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -267,17 +445,24 @@ export default function Dashboard() {
               <div
                 key={journal.id}
                 onClick={() => handleJournalClick(journal)}
-                className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl shadow-xl border border-white border-opacity-20 overflow-hidden hover:transform hover:scale-105 transition-all duration-200 cursor-pointer group"
+                className={`bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl shadow-xl border border-white border-opacity-20 overflow-hidden hover:transform hover:scale-105 transition-all duration-200 cursor-pointer group ${journal.type === 'note' ? 'border-blue-400 border-opacity-30' : ''
+                  }`}
               >
-                <div 
+                <div
                   className="h-32 flex items-center justify-center relative"
                   style={{ backgroundColor: journal.color }}
                 >
                   {renderIcon(journal.icon, "w-12 h-12 text-white")}
-                  {journal.hasPassword && (
+                  {journal.type === 'note' && (
+                    <div className="absolute top-3 left-3 bg-blue-500 bg-opacity-80 rounded px-2 py-1 flex items-center gap-1">
+                      {journal.hasPassword && <Lock className="w-3 h-3 text-white" />}
+                      <span className="text-white text-xs font-semibold">NOTE</span>
+                    </div>
+                  )}
+                  {journal.hasPassword && journal.type !== 'note' && (
                     <Lock className="absolute top-3 left-3 w-4 h-4 text-white" />
                   )}
-                  <button 
+                  <button
                     onClick={(e) => handleDeleteClick(e, journal)}
                     className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-black hover:bg-opacity-20 rounded"
                   >
@@ -285,10 +470,21 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <div className="p-4">
-                  <h3 className="text-white font-semibold truncate">{journal.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-white font-semibold truncate flex-1">{journal.title}</h3>
+                    {journal.type === 'note' && (
+                      <span className="text-blue-300 text-xs bg-blue-500 bg-opacity-20 px-2 py-1 rounded">
+                        Individual Note
+                      </span>
+                    )}
+                  </div>
                   {journal.description && (
                     <p className="text-gray-300 text-sm mt-1 truncate">{journal.description}</p>
                   )}
+                  <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+                    <span>{journal.type === 'note' ? 'Note' : 'Journal'}</span>
+                    <span>{new Date(journal.updatedAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -305,7 +501,7 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold text-white mb-2">Enter Password</h2>
               <p className="text-gray-300">This journal is password protected</p>
             </div>
-            
+
             <div className="space-y-4">
               <input
                 type="password"
@@ -314,7 +510,7 @@ export default function Dashboard() {
                   setEnteredPassword(e.target.value);
                   setPasswordError('');
                 }}
-                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
                 placeholder="Enter password..."
                 className="w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-400"
                 autoFocus
@@ -376,14 +572,14 @@ export default function Dashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-2xl shadow-2xl border border-purple-500 p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold text-white mb-6">Create a New Journal</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-white font-medium mb-2">Journal Name:</label>
                 <input
                   type="text"
                   value={newJournal.title}
-                  onChange={(e) => setNewJournal({...newJournal, title: e.target.value})}
+                  onChange={(e) => setNewJournal({ ...newJournal, title: e.target.value })}
                   placeholder="Enter a name..."
                   className="w-full bg-slate-700 text-white border-b-2 border-purple-500 px-3 py-2 focus:outline-none focus:border-purple-400"
                 />
@@ -393,7 +589,7 @@ export default function Dashboard() {
                 <label className="block text-white font-medium mb-2">Description:</label>
                 <textarea
                   value={newJournal.description}
-                  onChange={(e) => setNewJournal({...newJournal, description: e.target.value})}
+                  onChange={(e) => setNewJournal({ ...newJournal, description: e.target.value })}
                   placeholder="Enter description..."
                   className="w-full bg-slate-700 text-white border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-purple-400"
                   rows="3"
@@ -406,10 +602,9 @@ export default function Dashboard() {
                   {colors.map((color) => (
                     <button
                       key={color}
-                      onClick={() => setNewJournal({...newJournal, color})}
-                      className={`w-8 h-8 rounded-full border-2 ${
-                        newJournal.color === color ? 'border-white' : 'border-transparent'
-                      }`}
+                      onClick={() => setNewJournal({ ...newJournal, color })}
+                      className={`w-8 h-8 rounded-full border-2 ${newJournal.color === color ? 'border-white' : 'border-transparent'
+                        }`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -422,10 +617,9 @@ export default function Dashboard() {
                   {icons.map((iconName) => (
                     <button
                       key={iconName}
-                      onClick={() => setNewJournal({...newJournal, icon: iconName})}
-                      className={`w-10 h-10 border-2 rounded flex items-center justify-center ${
-                        newJournal.icon === iconName ? 'border-purple-500 bg-purple-600' : 'border-slate-600 bg-slate-700'
-                      }`}
+                      onClick={() => setNewJournal({ ...newJournal, icon: iconName })}
+                      className={`w-10 h-10 border-2 rounded flex items-center justify-center ${newJournal.icon === iconName ? 'border-purple-500 bg-purple-600' : 'border-slate-600 bg-slate-700'
+                        }`}
                     >
                       {renderIcon(iconName, "w-5 h-5 text-white")}
                     </button>
@@ -438,7 +632,7 @@ export default function Dashboard() {
                   type="checkbox"
                   id="hasPassword"
                   checked={newJournal.hasPassword}
-                  onChange={(e) => setNewJournal({...newJournal, hasPassword: e.target.checked})}
+                  onChange={(e) => setNewJournal({ ...newJournal, hasPassword: e.target.checked })}
                   className="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500"
                 />
                 <label htmlFor="hasPassword" className="text-white">Password protect this journal</label>
@@ -449,7 +643,7 @@ export default function Dashboard() {
                   <input
                     type="password"
                     value={newJournal.password}
-                    onChange={(e) => setNewJournal({...newJournal, password: e.target.value})}
+                    onChange={(e) => setNewJournal({ ...newJournal, password: e.target.value })}
                     placeholder="Enter password..."
                     className="w-full bg-slate-700 text-white border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-purple-400"
                   />
@@ -501,6 +695,8 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
 
 
 

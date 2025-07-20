@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Notes App</title>
+</head>
+
+<body>
+    <h1>Testing Notes App Issues</h1>
+
+    <h2>Issues to Test:</h2>
+    <ol>
+        <li>'+new note' button not working</li>
+        <li>Welcome section removed</li>
+        <li>Notes listed in sidebar when visiting "/" route</li>
+    </ol>
+
+    <h2>Changes Made:</h2>
+    <ul>
+        <li>✅ Removed welcome section from empty state</li>
+        <li>✅ Updated routing: "/" now shows NotesApp instead of Dashboard</li>
+        <li>✅ Updated navigation paths throughout the app</li>
+        <li>✅ Added debugging to createNewNote function</li>
+        <li>✅ Fixed deprecated onKeyPress warning</li>
+        <li>✅ <strong>Dashboard API Integration:</strong></li>
+        <ul>
+            <li>✅ Replaced localStorage with API calls for journals (groups)</li>
+            <li>✅ Added fetchJournals() function to get journals from API</li>
+            <li>✅ Added createJournalAPI() function to create journals via API</li>
+            <li>✅ Added deleteJournalAPI() function to delete journals via API</li>
+            <li>✅ Implemented password protection using description field encoding</li>
+            <li>✅ Added loading state for better UX</li>
+            <li>✅ Updated all CRUD operations to use API endpoints</li>
+            <li>✅ Removed dependency on localStorage for journal data</li>
+            <li>✅ <strong>NEW: Fetch both Groups AND Individual Notes</strong></li>
+            <li>✅ Display individual notes alongside journals in dashboard</li>
+            <li>✅ Different styling for notes vs journals (blue border, NOTE badge)</li>
+            <li>✅ Handle password verification for notes via API</li>
+            <li>✅ Navigate to individual notes directly (not through journal)</li>
+            <li>✅ Support deletion of both groups and individual notes</li>
+            <li>✅ Show note type and last updated date</li>
+        </ul>
+        <li>✅ <strong>NEW: Unified Create Dialog</strong></li>
+        <ul>
+            <li>✅ "+New Note" button now opens same dialog as Dashboard</li>
+            <li>✅ Added comprehensive note creation form with title, content, and password protection</li>
+            <li>✅ Replaced direct note creation with dialog-based approach</li>
+            <li>✅ Maintains consistency between Dashboard and NotesApp interfaces</li>
+            <li>✅ Supports initial content and password protection during creation</li>
+        </ul>
+    </ul>
+
+    <h2>Expected Behavior:</h2>
+    <ul>
+        <li>Visiting "/" should show the NotesApp with all notes listed in sidebar</li>
+        <li>Clicking "+New Note" should create a new note and navigate to it</li>
+        <li>Empty state should show "No Note Selected" instead of welcome message</li>
+        <li>"Back to Dashboard" button should navigate to "/dashboard"</li>
+    </ul>
+
+    <p><strong>Note:</strong> The debugging console.log statements have been added to help identify any issues with the
+        createNewNote function.</p>
+</body>
+
+</html>
