@@ -20,7 +20,7 @@ export default function AuthPage() {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/');
+      navigate('/dashboard');
     }
 
     // Check for verification errors from URL
@@ -115,9 +115,9 @@ export default function AuthPage() {
 
       if (data.success) {
         if (isLogin) {
-          // Login successful - store token and redirect
+          // Login successful - store token and redirect to dashboard
           localStorage.setItem('token', data.token);
-          navigate('/welcome');
+          navigate('/dashboard');
         } else {
           // Registration successful - show verification message
           alert('Registration successful! Please check your email to verify your account before logging in.');

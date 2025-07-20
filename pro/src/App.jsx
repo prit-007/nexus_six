@@ -30,18 +30,20 @@ import Dashboard from './Dashboard';
 import NotesApp from './pages/NotesApp';
 import AuthPage from './AuthPage';
 import EmailVerification from './EmailVerification';
+import Welcome from './Welcome';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<NotesApp />} />
-        <Route path="/:id" element={<NotesApp />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/notes" element={<NotesApp />} />
         <Route path="/notes/:id" element={<NotesApp />} />
+        <Route path="/:id" element={<NotesApp />} />
       </Routes>
     </Router>
   );
