@@ -32,7 +32,41 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Notulate Logo Enhancements */
+.notulate-logo {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.notulate-logo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Dashboard Logo Styling */
+.dashboard-logo {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.1));
+}
+
+.dashboard-logo:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.2));
+}
+
+/* Sidebar Logo Styling */
+.sidebar-logo {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.sidebar-logo:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
 }

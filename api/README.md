@@ -1,6 +1,6 @@
-# CalcNote API with MongoDB & Gemini AI
+# Notulate API with MongoDB
 
-A professional, production-ready Express.js API for the CalcNote application, a smart notepad that performs real-time calculations as users type numbers and formulas. The API features industrial-standard architecture, MongoDB integration, JWT authentication, password hashing, logging, error handling, API documentation, and Gemini AI integration.
+A professional, production-ready Express.js API for the CalcNote application, a smart notepad that performs real-time calculations as users type numbers and formulas. The API features industrial-standard architecture, MongoDB integration, JWT authentication, password hashing, logging, error handling, API documentation.
 
 ## 🚀 Technologies & Versions
 
@@ -96,12 +96,6 @@ api/
 - Error handling middleware
 - API documentation with Swagger
 - Rate limiting and security headers
-
-### 4. AI Integration Module
-- Google Gemini AI integration
-- Text generation capabilities
-- Chat completion features
-- Text analysis functionality
 
    # Database Configuration
    MONGODB_URI=mongodb://localhost:27017/calcnote_db
@@ -740,11 +734,39 @@ npm test
 ## 👥 Author & Contributors
 
 ### Lead Developer
-- **Name**: [Your Name]
-- **Role**: Full-Stack Developer
-- **Email**: [your.email@example.com]
-- **GitHub**: [your-github-username]
+- - *Name*: Prit Vasani
+- *Role*:  Team Leader & Full-Stack Developer
+- *Email*: pritvasani2@gmail.com
+- *GitHub*: prit-007
 
+- *Name*: Vivek Khunt
+- *Role*: Full-Stack Developer
+- *Email*: itsvk8297@gmail.com
+- *GitHub*: vivekkhunt
+
+
+- *Name*: Bhargav Bhagiya
+- *Role*:  Full-Stack Developer
+- *Email*: bhargavbhagiya10@gmail.com
+- *GitHub*: Bhargav-1001
+
+
+- *Name*: Samarth Mehta
+- *Role*: Frontend Developer
+- *Email*: samarthhmehta@gmail.com
+- *GitHub*: saamartthh
+
+
+- *Name*: Rajvi Adesara
+- *Role*: Frontend Developer
+- *Email*: adesararajvi912@gmail.com
+- *GitHub*: RajviAdesara
+
+
+- *Name*: Meet Parekh
+- *Role*: Frontend Developer
+- *Email*: meetsdparekh@gmail.com
+- *GitHub*: meet2904
 ### Technologies Expertise
 - Frontend: React, Tailwind CSS, JavaScript
 - Backend: Node.js, Express.js, MongoDB
