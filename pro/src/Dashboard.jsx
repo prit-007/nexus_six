@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { LogOut, Plus, Lock, Trash2, BookOpen, User, FileText, Building, Home, Cloud, Settings, Briefcase, Calendar, Beaker, FlaskConical } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import './App.css';
 
 export default function Dashboard() {
   const [searchParams] = useSearchParams();
@@ -382,9 +383,18 @@ export default function Dashboard() {
 
       {/* Header */}
       <div className="flex justify-between items-center p-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Journals & Notes</h1>
-          <p className="text-gray-300 text-sm">Manage your journals and individual notes</p>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <img
+              src="/notulate-logo.svg"
+              alt="Notulate Logo"
+              className="w-10 h-10 rounded-lg shadow-lg dashboard-logo"
+            />
+            <div>
+              <h1 className="text-2xl font-bold text-white">Notulate</h1>
+              <p className="text-gray-300 text-sm">Smart note-taking with calculations</p>
+            </div>
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           <button
