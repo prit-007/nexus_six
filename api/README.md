@@ -97,12 +97,6 @@ api/
 - API documentation with Swagger
 - Rate limiting and security headers
 
-### 4. AI Integration Module
-- Google Gemini AI integration
-- Text generation capabilities
-- Chat completion features
-- Text analysis functionality
-
    # Database Configuration
    MONGODB_URI=mongodb://localhost:27017/calcnote_db
    MONGODB_DEBUG=false
