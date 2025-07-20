@@ -1,6 +1,6 @@
-# CalcNote API with MongoDB & Gemini AI
+# Notulate API with MongoDB
 
-A professional, production-ready Express.js API for the CalcNote application, a smart notepad that performs real-time calculations as users type numbers and formulas. The API features industrial-standard architecture, MongoDB integration, JWT authentication, password hashing, logging, error handling, API documentation, and Gemini AI integration.
+A professional, production-ready Express.js API for the CalcNote application, a smart notepad that performs real-time calculations as users type numbers and formulas. The API features industrial-standard architecture, MongoDB integration, JWT authentication, password hashing, logging, error handling, API documentation.
 
 ## 🚀 Technologies & Versions
 
