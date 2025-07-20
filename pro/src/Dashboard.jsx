@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut, Plus, MoreVertical, Lock, Trash2, BookOpen, User, FileText, Building, Home, Cloud, Settings, Briefcase, Calendar, Beaker, FlaskConical } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Dashboard() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -11,6 +15,64 @@ export default function Dashboard() {
   const [selectedJournal, setSelectedJournal] = useState(null);
   const [enteredPassword, setEnteredPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  useEffect(() => {
+    // Check for email verification success
+    const verified = searchParams.get('verified');
+    const token = searchParams.get('token');
+    
+    if (verified === 'true' && token) {
+      // Store the token and show success message
+      localStorage.setItem('token', token);
+      setShowWelcome(true);
+      
+      // Clean up URL parameters
+      navigate('/', { replace: true });
+    }
+
+    // Check for verification errors
+    const error = searchParams.get('error');
+    if (error) {
+      let errorMessage = 'Verification failed';
+      if (error === 'expired') {
+        errorMessage = 'Verification link has expired. Please request a new one.';
+      } else if (error === 'invalid') {
+        errorMessage = 'Invalid verification link.';
+      } else if (error === 'server') {
+        errorMessage = 'Server error during verification.';
+      }
+      
+      alert(errorMessage);
+      navigate('/auth', { replace: true });
+    }
+
+    // Fetch user data if token exists
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      fetchUserData(storedToken);
+    }
+  }, [searchParams, navigate]);
+
+  const fetchUserData = async (token) => {
+    try {
+      const response = await axios.get('http://localhost:1969/api/users/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.data.success) {
+        setUser(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // If token is invalid, redirect to auth
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/auth');
+      }
+    }
+  };
 
   // Update the journals state initialization to load from localStorage
   const [journals, setJournals] = useState(() => {
@@ -142,6 +204,20 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Welcome Message */}
+      {user && (
+        <div className="absolute top-4 left-4 z-10">
+          <div className={`bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 transition-all duration-500 ${
+            showWelcome ? 'animate-pulse bg-green-500/20 border border-green-400' : ''
+          }`}>
+            <p className="text-white font-semibold">
+              Welcome, {user.username}! 
+              {showWelcome && <span className="text-green-400 ml-2">✓ Email Verified</span>}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center p-6">
         <h1 className="text-2xl font-bold text-white">Journals</h1>
@@ -425,6 +501,8 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
 
 
 

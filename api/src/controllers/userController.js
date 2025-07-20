@@ -119,9 +119,74 @@ const verifyEmail = async (req, res) => {
       const expiredUser = await User.findOne({ verificationToken: token });
       if (expiredUser) {
         console.log('Token found but EXPIRED');
+        // Redirect to auth page with error message
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth?error=expired`);
+      } else {
+        console.log('Token NOT FOUND in database');
+        // Redirect to auth page with error message
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth?error=invalid`);
+      }
+    }
+
+    // Update user verification status
+    user.isVerified = true;
+    user.verificationToken = null;
+    user.tokenExpiry = null;
+    await user.save({ validateBeforeSave: false });
+
+    logger.info(`Email verified for user: ${user.email}`);
+
+    // Generate JWT token for auto-login
+    const jwtToken = user.getSignedJwtToken();
+
+    // Redirect to home page with success message and auto-login
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?verified=true&token=${jwtToken}`);
+
+  } catch (err) {
+    logger.error(`Error verifying email: ${err.message}`);
+    console.error('VERIFICATION ERROR:', err);
+    // Redirect to auth page with error message
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth?error=server`);
+  }
+};
+
+/**
+ * @desc    Verify email via API (returns JSON)
+ * @route   POST /api/users/verify-email
+ * @access  Public
+ */
+const verifyEmailAPI = async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    console.log('='.repeat(50));
+    console.log('EMAIL VERIFICATION API DEBUG:');
+    console.log(`Received token: ${token}`);
+    console.log(`Token length: ${token.length}`);
+    console.log('='.repeat(50));
+
+    // Find user with verification token
+    const user = await User.findOne({
+      verificationToken: token,
+      tokenExpiry: { $gt: Date.now() }
+    });
+
+    console.log(`User found: ${user ? 'YES' : 'NO'}`);
+    if (user) {
+      console.log(`User email: ${user.email}`);
+      console.log(`Token expiry: ${user.tokenExpiry}`);
+      console.log(`Current time: ${new Date()}`);
+      console.log(`Is expired: ${user.tokenExpiry < Date.now()}`);
+    }
+
+    if (!user) {
+      // Check if user exists with this token but expired
+      const expiredUser = await User.findOne({ verificationToken: token });
+      if (expiredUser) {
+        console.log('Token found but EXPIRED');
         return res.status(400).json({
           success: false,
-          message: 'Verification token has expired. Please request a new verification email.'
+          message: 'Verification token has expired'
         });
       } else {
         console.log('Token NOT FOUND in database');
@@ -140,9 +205,13 @@ const verifyEmail = async (req, res) => {
 
     logger.info(`Email verified for user: ${user.email}`);
 
+    // Generate JWT token for auto-login
+    const jwtToken = user.getSignedJwtToken();
+
     res.status(200).json({
       success: true,
-      message: 'Email verified successfully. You can now log in.',
+      message: 'Email verified successfully',
+      token: jwtToken,
       data: {
         id: user._id,
         username: user.username,
@@ -472,14 +541,60 @@ const testEmail = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get user data by verification token (without verifying)
+ * @route   GET /api/users/token-info/:token
+ * @access  Public
+ */
+const getTokenInfo = async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    // Find user with verification token
+    const user = await User.findOne({
+      verificationToken: token
+    }).select('username email isVerified tokenExpiry');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid verification token'
+      });
+    }
+
+    // Check if token is expired
+    const isExpired = user.tokenExpiry < Date.now();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        username: user.username,
+        email: user.email,
+        isVerified: user.isVerified,
+        isExpired: isExpired,
+        tokenExpiry: user.tokenExpiry
+      }
+    });
+
+  } catch (err) {
+    logger.error(`Error getting token info: ${err.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   verifyEmail,
+  verifyEmailAPI,
   resendVerificationEmail,
   testEmail,
   getMe,
   updateProfile,
   updatePassword,
-  logout
+  logout,
+  getTokenInfo
 };

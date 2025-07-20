@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function AuthPage() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -13,15 +15,31 @@ export default function AuthPage() {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
-  // Check if user is already logged in
   useEffect(() => {
+    // Check if user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/welcome');
+      navigate('/');
     }
-  }, [navigate]);
+
+    // Check for verification errors from URL
+    const error = searchParams.get('error');
+    if (error) {
+      let errorMessage = 'Verification failed';
+      if (error === 'expired') {
+        errorMessage = 'Verification link has expired. Please request a new verification email.';
+      } else if (error === 'invalid') {
+        errorMessage = 'Invalid verification link. Please try again.';
+      } else if (error === 'server') {
+        errorMessage = 'Server error during verification. Please try again.';
+      }
+      
+      alert(errorMessage);
+      // Clean up URL parameters
+      navigate('/auth', { replace: true });
+    }
+  }, [navigate, searchParams]);
 
   // Validation functions
   const validateEmail = (email) => {
