@@ -1,0 +1,502 @@
+/* Smart Notes App - Modern & Professional Theme */
+.notes-app {
+  display: flex;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.app-title svg {
+  color: #667eea;
+}
+
+.logout-btn {
+  padding: 8px;
+  border: none;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
+}
+
+.search-section {
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  z-index: 1;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: white;
+}
+
+.new-note-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.new-note-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.notes-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 20px 20px;
+}
+
+.note-item {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.note-item:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.note-item.active {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.note-header svg {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.note-title {
+  flex: 1;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.delete-btn {
+  padding: 4px;
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.note-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.note-preview {
+  color: #718096;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.note-meta {
+  font-size: 11px;
+  color: #a0aec0;
+}
+
+/* Main Editor Styles */
+.main-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  margin: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.editor-header {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.title-section {
+  margin-bottom: 20px;
+}
+
+.note-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.note-title:hover {
+  color: #667eea;
+}
+
+.edit-icon {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.note-title:hover .edit-icon {
+  opacity: 1;
+}
+
+.title-input {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d3748;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  padding: 8px 16px;
+  background: white;
+  outline: none;
+  width: 100%;
+  max-width: 500px;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.stat-label {
+  color: #718096;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: #667eea;
+  font-weight: 700;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.editor-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+}
+
+.note-textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #2d3748;
+  background: transparent;
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  padding: 0;
+}
+
+.note-textarea::placeholder {
+  color: #a0aec0;
+  line-height: 1.6;
+}
+
+.editor-footer {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.variables-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.variables-title {
+  color: #718096;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.variables-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.variable-chip {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.more-variables {
+  color: #a0aec0;
+  font-size: 12px;
+  font-style: italic;
+  padding: 6px 12px;
+  background: rgba(160, 174, 192, 0.1);
+  border-radius: 16px;
+}
+
+/* Empty State */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  color: #718096;
+}
+
+.empty-state svg {
+  color: #667eea;
+  margin-bottom: 24px;
+}
+
+.empty-state h2 {
+  color: #2d3748;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.empty-state p {
+  margin: 0 0 32px 0;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.create-first-note-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.create-first-note-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Scrollbar Styling */
+.notes-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notes-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.notes-list::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+}
+
+.notes-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notes-app {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: 300px;
+  }
+  
+  .main-editor {
+    margin: 10px;
+    border-radius: 15px;
+  }
+  
+  .stats-bar {
+    gap: 12px;
+  }
+  
+  .stat-item {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .note-title {
+    font-size: 24px;
+  }
+  
+  .title-input {
+    font-size: 24px;
+  }
+}
+
+/* Animation for smooth interactions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.note-item {
+  animation: fadeInUp 0.3s ease;
+}
+
+.main-editor {
+  animation: fadeInUp 0.5s ease;
+}
+
+/* Focus and active states for better UX */
+.note-textarea:focus {
+  outline: none;
+}
+
+.sidebar input:focus,
+.title-input:focus {
+  transform: scale(1.02);
+}
+
+/* Glass morphism effects */
+.sidebar,
+.main-editor {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.note-item.active {
+  backdrop-filter: blur(10px);
+}
+
+/* Highlight calculation results */
+.note-textarea {
+  caret-color: #667eea;
+}

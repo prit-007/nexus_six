@@ -1,13 +1,18 @@
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AuthPage from './pages/AuthPage';
+import Welcome from './pages/Welcome';
+import NotesApp from './pages/NotesApp';
 
 function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline bg-blue-500 text-white p-4">
-        Hello world!
-      </h1>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<AuthPage />} />
+        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/notes" element={<NotesApp />} />
+      </Routes>
+    </Router>
   );
 }
 
