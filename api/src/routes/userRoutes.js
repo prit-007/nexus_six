@@ -2,10 +2,15 @@ const express = require('express');
 const {
   registerUser,
   loginUser,
+  verifyEmail,
+  verifyEmailAPI,
+  resendVerificationEmail,
+  testEmail,
   getMe,
   updateProfile,
   updatePassword,
-  logout
+  logout,
+  getTokenInfo
 } = require('../controllers/userController');
 
 // Middleware
@@ -153,6 +158,13 @@ router.post('/login', loginUser);
  *                   example: User logged out successfully
  */
 router.get('/logout', logout);
+
+// Email verification routes
+router.get('/verify-email/:token', verifyEmail);
+router.post('/verify-email', verifyEmailAPI);
+router.get('/token-info/:token', getTokenInfo);
+router.post('/resend-verification', resendVerificationEmail);
+router.post('/test-email', testEmail);
 
 /**
  * @swagger

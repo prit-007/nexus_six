@@ -1,16 +1,20 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthPage from './pages/AuthPage';
-import Welcome from './pages/Welcome';
-import NotesApp from './pages/NotesApp';
+import AuthPage from './AuthPage';
+import Dashboard from './Dashboard';
+import NotePage from './NotePage';
+import Welcome from './Welcome';
+import EmailVerification from './EmailVerification';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<AuthPage />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/welcome" element={<Welcome />} />
-        <Route path="/notes" element={<NotesApp />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/note/:id" element={<NotePage />} />
       </Routes>
     </Router>
   );

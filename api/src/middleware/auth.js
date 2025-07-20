@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 /**
  * Middleware to protect routes that require authentication
  */
-exports.protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
   let token;
 
   // Check if token exists in headers
@@ -44,6 +44,15 @@ exports.protect = async (req, res, next) => {
       });
     }
 
+    // BLOCK ACCESS if email is not verified
+    if (!req.user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email verification required to access this resource',
+        needsVerification: true
+      });
+    }
+
     next();
   } catch (err) {
     logger.error(`Auth middleware error: ${err.message}`);
@@ -57,7 +66,7 @@ exports.protect = async (req, res, next) => {
 /**
  * Middleware to restrict access to specific roles
  */
-exports.authorize = (...roles) => {
+const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user.role || !roles.includes(req.user.role)) {
       return res.status(403).json({
@@ -67,4 +76,31 @@ exports.authorize = (...roles) => {
     }
     next();
   };
+};
+
+/**
+ * Middleware to check email verification for protected routes
+ */
+const requireEmailVerification = async (req, res, next) => {
+  try {
+    if (!req.user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email verification required to access this resource',
+        needsVerification: true
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+module.exports = {
+  protect,
+  authorize,
+  requireEmailVerification
 };
